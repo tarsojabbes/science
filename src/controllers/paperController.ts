@@ -6,7 +6,14 @@ const service = new PaperService();
 export const PaperController = {
     async create(req: Request, res: Response): Promise<void> {
         try {
-            const paper = await service.createPaper(req.body);
+            const { researchers, ...rest } = req.body;
+
+            const data = {
+            ...rest,
+            submissionDate: new Date(),
+            researcherIds: researchers
+            };
+            const paper = await service.createPaper(data);
             res.status(201).json(paper);
         } catch (err: any) {
             res.status(500).json({error: err.message});
