@@ -5,19 +5,6 @@ import {User} from "../models/User"
 
 const userService = new UserService();
 
-const getAllResearchers = async (researchersIds: number[]) => {
-    let researchers: User[] = []
-    researchersIds.forEach((id) => {
-        userService.getUserById(id).then((user) => {
-            if (user != null) {
-                researchers.push(user);
-            }
-        })
-    })
-    console.log(researchers);
-    return researchers;
-}
-
 export class PaperService {
   private repo = new PaperRepository();
 

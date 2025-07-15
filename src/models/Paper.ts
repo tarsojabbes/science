@@ -42,6 +42,16 @@ Paper.init({
   url: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  journalId: {
+  type: DataTypes.INTEGER,
+  allowNull: false,
+  references: { model: 'journals', key: 'id' }
+  },
+  issueId: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+  references: { model: 'issues', key: 'id' }
   }
 }, {
   sequelize,

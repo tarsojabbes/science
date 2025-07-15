@@ -3,6 +3,8 @@ import * as dotenv from "dotenv";
 import  sequelize from "./config/database";
 import userRoutes from "./routes/userRoutes";
 import paperRoutes from "./routes/paperRoutes"
+import journalRoutes from "./routes/journalRoutes";
+import issueRoutes from "./routes/issueRoutes";
 import './associations';
 
 dotenv.config();
@@ -12,6 +14,8 @@ app.use(express.json());
 
 app.use("/users", userRoutes);
 app.use("/papers", paperRoutes);
+app.use("/journals", journalRoutes);
+app.use("/issues", issueRoutes);
 
 sequelize.sync().then(() => {
   console.log("Successfully connected to PostgreSQL");

@@ -1,5 +1,7 @@
 import { User } from './models/User';
 import { Paper } from './models/Paper';
+import { Journal } from './models/Journal';
+import { Issue } from './models/Issue';
 
 User.belongsToMany(Paper, {
   through: 'PaperResearchers',
@@ -15,4 +17,10 @@ Paper.belongsToMany(User, {
   as: 'researchers'
 });
 
-export { User, Paper };
+Paper.belongsTo(Journal, { foreignKey: 'journalId', as: 'journal' });
+Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
+
+Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
+Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
+
+export { User, Paper, Journal, Issue };
