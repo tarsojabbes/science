@@ -7,7 +7,7 @@ export class Issue extends Model {
   public number!: number;
   public volume!: number;
   public publishedDate!: Date;
-  public journalId!: number;
+  public journalId!: number;  
 }
 
 Issue.init({

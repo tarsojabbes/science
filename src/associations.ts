@@ -23,4 +23,7 @@ Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
 Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
 Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
 
+Journal.hasMany(Issue, { foreignKey: "journalId", as: "issues" });
+Issue.belongsTo(Journal, { foreignKey: "journalId", as: "journal" });
+
 export { User, Paper, Journal, Issue };
