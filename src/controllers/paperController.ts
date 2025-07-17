@@ -23,7 +23,7 @@ export const PaperController = {
     async update(req: Request, res: Response): Promise<void> {
         try {
             const paper = await service.updatePaper(Number(req.params.id), req.body);
-            res.status(204);
+            res.sendStatus(204);
         } catch (err: any) {
             res.status(500).json({error: err.message});
         }
@@ -58,7 +58,7 @@ export const PaperController = {
                 res.status(404).json({message: "Paper not found"});
                 return;
             }
-            res.json(deleted);
+            res.sendStatus(204);
         } catch (err: any) {
             res.status(500).json({error: err.message});
         }
@@ -66,7 +66,7 @@ export const PaperController = {
 
     async addResearcher(req: Request, res: Response): Promise<void> {
         try {
-            const paper = service.addResearcher(Number(req.params.paperId), Number(req.params.researcherId));
+            const paper = await service.addResearcher(Number(req.params.paperId), Number(req.params.researcherId));
             if (!paper) {
                 res.status(404).json({message: "User or paper invalid"});
                 return;
@@ -79,7 +79,7 @@ export const PaperController = {
 
     async removeResearcher(req: Request, res: Response): Promise<void> {
         try {
-            const paper = service.removeResearcher(Number(req.params.paperId), Number(req.params.researcherId));
+            const paper = await service.removeResearcher(Number(req.params.paperId), Number(req.params.researcherId));
             if (!paper) {
                 res.status(404).json({message: "User or paper invalid"});
                 return;
@@ -92,7 +92,7 @@ export const PaperController = {
 
     async getPaperByResearcher(req: Request, res: Response): Promise<void> {
         try {
-            const papers = service.getPapersByResearcher(Number(req.params.researcherId));
+            const papers = await service.getPapersByResearcher(Number(req.params.researcherId));
             if (!papers) {
                 res.status(404).json({message: "User invalid"});
                 return;
