@@ -11,6 +11,90 @@ const router = Router();
  *
  * components:
  *   schemas:
+ *     Issue:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         number:
+ *           type: integer
+ *         volume:
+ *           type: integer
+ *         publishedDate:
+ *           type: string
+ *           format: date
+ *         journalId:
+ *           type: integer
+ *         papers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Paper'
+ *       required:
+ *         - id
+ *         - number
+ *         - volume
+ *         - publishedDate
+ *         - journalId
+ *
+ *     Paper:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         publishedDate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *         submissionDate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *         url:
+ *           type: string
+ *           nullable: true
+ *         journalId:
+ *           type: integer
+ *         issueId:
+ *           type: integer
+ *           nullable: true
+ *         researchers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/User'
+ *       required:
+ *         - id
+ *         - name
+ *         - journalId
+ *
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *         institution:
+ *           type: string
+ *         orcid:
+ *           type: string
+ *         roles:
+ *           type: array
+ *           items:
+ *             type: string
+ *       required:
+ *         - id
+ *         - name
+ *         - email
+ *         - password
+ *         - roles
+ *
  *     Journal:
  *       type: object
  *       properties:
@@ -20,10 +104,16 @@ const router = Router();
  *           type: string
  *         issn:
  *           type: string
+ *         issues:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Issue'
+ *           description: List of all issues published in this journal
  *       required:
  *         - id
  *         - name
  *         - issn
+ *         - issues
  *
  *     JournalInput:
  *       type: object
@@ -36,7 +126,6 @@ const router = Router();
  *         - name
  *         - issn
  */
-
 
 /**
  * @swagger
@@ -62,8 +151,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-
-router.post('/',  JournalController.create);
+router.post('/', JournalController.create);
 
 /**
  * @swagger
@@ -72,10 +160,10 @@ router.post('/',  JournalController.create);
  *     tags:
  *       - Journals
  *     summary: Get all journals
- *     description: Retrieves a list of all journals.
+ *     description: Retrieves a list of all journals with their associated issues and papers.
  *     responses:
  *       200:
- *         description: List of journals
+ *         description: List of journals with their issues
  *         content:
  *           application/json:
  *             schema:
@@ -94,7 +182,7 @@ router.get('/', JournalController.getAll);
  *     tags:
  *       - Journals
  *     summary: Get journal by ID
- *     description: Retrieves a journal by its unique ID.
+ *     description: Retrieves a journal by its unique ID, including all its issues and associated papers.
  *     parameters:
  *       - name: id
  *         in: path
@@ -103,7 +191,7 @@ router.get('/', JournalController.getAll);
  *           type: integer
  *     responses:
  *       200:
- *         description: Journal found
+ *         description: Journal found with its issues
  *         content:
  *           application/json:
  *             schema:
@@ -166,10 +254,6 @@ router.put('/:id', JournalController.update);
  *     responses:
  *       200:
  *         description: Journal successfully deleted
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Journal'
  *       404:
  *         description: Journal not found
  *       500:

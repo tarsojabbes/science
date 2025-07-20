@@ -16,13 +16,23 @@ const router = Router();
  *           type: string
  *         email:
  *           type: string
- *         role:
+ *           format: email
+ *         password:
  *           type: string
+ *         institution:
+ *           type: string
+ *         orcid:
+ *           type: string
+ *         roles:
+ *           type: array
+ *           items:
+ *             type: string
  *       required:
  *         - id
  *         - name
  *         - email
- *         - role
+ *         - password
+ *         - roles
  *
  *     UserInput:
  *       type: object
@@ -31,12 +41,49 @@ const router = Router();
  *           type: string
  *         email:
  *           type: string
- *         role:
+ *           format: email
+ *         password:
  *           type: string
+ *         institution:
+ *           type: string
+ *         orcid:
+ *           type: string
+ *         roles:
+ *           type: array
+ *           items:
+ *             type: string
  *       required:
  *         - name
  *         - email
- *         - role
+ *         - password
+ *         - roles
+ *
+ *     UserUpdateInput:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *         institution:
+ *           type: string
+ *         orcid:
+ *           type: string
+ *         roles:
+ *           type: array
+ *           items:
+ *             type: string
+ *       required:
+ *         - id
+ *         - name
+ *         - email
+ *         - password
+ *         - roles
  */
 
 /**
@@ -145,24 +192,32 @@ router.delete("/:id", UserController.delete);
 
 /**
  * @swagger
- * /users:
+ * /users/{id}:
  *   put:
  *     tags:
  *       - Users
  *     summary: Update a user
  *     description: Updates an existing user's details.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UserInput'
+ *             $ref: '#/components/schemas/UserUpdateInput'
  *     responses:
  *       204:
  *         description: User successfully updated (no content)
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Server error
  */
-router.put("/:id", UserController.update)
+router.put("/:id", UserController.update);
 
 export default router;

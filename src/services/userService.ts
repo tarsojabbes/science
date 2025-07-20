@@ -8,8 +8,8 @@ export class UserService {
     return await this.repo.createUser(data);
   }
 
-  async updateUser(data: User) {
-    return await this.repo.updateUser(data.id, data);
+  async updateUser(id: number, data: User) {
+    return await this.repo.updateUser(id, data);
   }
 
   async getAllUsers() {

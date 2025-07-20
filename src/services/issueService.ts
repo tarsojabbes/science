@@ -6,8 +6,8 @@ export class IssueService {
   async createIssue(data: {
     number: number;
     volume: number;
-    publishedDate: Date;
     journalId: number;
+    paperIds: number[];
   }) {
     return await this.repo.createIssue(data);
   }

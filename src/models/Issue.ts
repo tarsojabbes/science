@@ -7,7 +7,11 @@ export class Issue extends Model {
   public number!: number;
   public volume!: number;
   public publishedDate!: Date;
-  public journalId!: number;  
+  public journalId!: number;
+
+  public addPaper!: (paper: Paper) => Promise<void>;
+  public setPapers!: (papers: Paper[]) => Promise<void>;
+  public getPapers!: () => Promise<Paper[]>;
 }
 
 Issue.init({

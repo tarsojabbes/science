@@ -24,7 +24,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -62,7 +63,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -72,7 +74,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -82,7 +85,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -92,7 +96,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
     
@@ -116,7 +121,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -133,7 +139,8 @@ export class PaperRepository {
       include: [{
         model: User,
         as: 'researchers',
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }
@@ -144,7 +151,8 @@ export class PaperRepository {
         model: User,
         as: 'researchers',
         where: { id: userId },
-        attributes: ['id', 'name', 'email', 'institution', 'orcid']
+        attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+        through: { attributes: [] }
       }]
     });
   }

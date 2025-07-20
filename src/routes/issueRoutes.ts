@@ -7,6 +7,53 @@ const router = Router();
  * @swagger
  * components:
  *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *       required:
+ *         - id
+ *         - name
+ *         - email
+ *
+ *     Paper:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         publishedDate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *         submissionDate:
+ *           type: string
+ *           format: date
+ *           nullable: true
+ *         url:
+ *           type: string
+ *           nullable: true
+ *         journalId:
+ *           type: integer
+ *         issueId:
+ *           type: integer
+ *           nullable: true
+ *         researchers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/User'
+ *       required:
+ *         - id
+ *         - name
+ *         - journalId
+ *
  *     Issue:
  *       type: object
  *       properties:
@@ -21,12 +68,17 @@ const router = Router();
  *           format: date
  *         journalId:
  *           type: integer
+ *         papers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Paper'
  *       required:
  *         - id
  *         - number
  *         - volume
  *         - publishedDate
  *         - journalId
+ *         - papers
  *
  *     IssueInput:
  *       type: object
@@ -35,16 +87,19 @@ const router = Router();
  *           type: integer
  *         volume:
  *           type: integer
- *         publishedDate:
- *           type: string
  *           format: date
  *         journalId:
  *           type: integer
+ *         paperIds:
+ *           type: array
+ *           items:
+ *             type: integer
+ *           description: Array of paper IDs to associate with this issue
  *       required:
  *         - number
  *         - volume
- *         - publishedDate
  *         - journalId
+ *         - paperIds
  */
 
 /**

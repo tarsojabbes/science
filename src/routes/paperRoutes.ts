@@ -91,8 +91,6 @@ const router = Router();
  *                 type: string
  *               journalId:
  *                 type: integer
- *               issueId:
- *                 type: integer
  *               researchers:
  *                 type: array
  *                 items:
@@ -164,6 +162,46 @@ router.get("/:id", PaperController.findById);
  *         description: Server error
  */
 router.delete("/:id", PaperController.delete);
+
+/**
+ * @swagger
+ * /papers/{id}:
+ *   put:
+ *     summary: Update a paper by ID
+ *     tags: [Papers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Paper ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               journalId:
+ *                 type: integer
+ *               researchers:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       204:
+ *         description: Paper updated successfully
+ *       404:
+ *         description: Paper not found
+ *       500:
+ *         description: Server error
+ */
+router.put("/:id", PaperController.update);
 
 /**
  * @swagger

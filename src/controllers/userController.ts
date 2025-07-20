@@ -15,10 +15,14 @@ export const UserController = {
 
   async update(req: Request, res: Response): Promise<void> {
     try {
-        const user = await service.updateUser(req.body);
-        res.status(204);
+      const user = await service.updateUser(Number(req.params.id), req.body);
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+      res.status(204).send();
     } catch (err: any) {
-        res.status(500).json({error: err.message})
+      res.status(500).json({ error: err.message });
     }
   },
 

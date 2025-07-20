@@ -22,8 +22,18 @@ export const PaperController = {
 
     async update(req: Request, res: Response): Promise<void> {
         try {
-            const paper = await service.updatePaper(Number(req.params.id), req.body);
-            res.sendStatus(204);
+            const { researchers, ...rest } = req.body;
+            const data = {
+                ...rest,
+                researcherIds: researchers
+            };
+            const paper = await service.updatePaper(Number(req.params.id), data);
+        
+            if (!paper) {
+                res.status(404).json({message: "Paper not found"});
+                return;
+            }
+            res.status(204).send();
         } catch (err: any) {
             res.status(500).json({error: err.message});
         }
