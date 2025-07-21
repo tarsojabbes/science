@@ -7,7 +7,7 @@ export const ReviewController = {
   async create(req: Request, res: Response): Promise<void>  {
     try {
       const { paperId, requesterId, firstReviewerId, secondReviewerId } = req.body;
-      const review = await service.createReview({ paperId, requesterId, firstReviewerId, secondReviewerId });
+      const review = await service.createReview({ paperId, requesterId, firstReviewerId, secondReviewerId, approved: false });
       res.status(201).json(review);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -43,6 +43,28 @@ export const ReviewController = {
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
+  },
+
+  async update(req: Request, res: Response): Promise<void> {
+  try {
+    const id = Number(req.params.id);
+    const { paperId, approved, firstReviewerId, secondReviewerId } = req.body;
+    
+    const updatedReview = await service.updateReview(id, {
+      paperId,
+      approved,
+      firstReviewerId,
+      secondReviewerId
+    });
+    
+    if (!updatedReview) {
+      res.status(404).json({ message: 'Review not found' });
+      return;
+    }
+    res.status(200).json(updatedReview);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+  }
   },
 
   async delete(req: Request, res: Response): Promise<void>  {

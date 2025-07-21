@@ -33,7 +33,7 @@ export const PaperController = {
                 res.status(404).json({message: "Paper not found"});
                 return;
             }
-            res.status(204).send();
+            res.json(paper);
         } catch (err: any) {
             res.status(500).json({error: err.message});
         }
@@ -94,7 +94,7 @@ export const PaperController = {
                 res.status(404).json({message: "User or paper invalid"});
                 return;
             }
-            res.json(paper)
+            res.sendStatus(204);
         } catch (err: any) {
             res.status(500).json({error: err.message})
         }

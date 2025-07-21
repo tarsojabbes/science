@@ -12,6 +12,14 @@ export class ReviewResultService {
     return await this.resultRepo.createResult(data);
   }
 
+  async updateResult(id: number, data: {
+  firstReviewerNote?: string;
+  secondReviewerNote?: string;
+  approval?: boolean;
+  }) {
+    return await this.resultRepo.updateResult(id, data);
+  }
+
   async getResultsByReview(reviewId: number) {
     return await this.resultRepo.getResultsByReview(reviewId);
   }

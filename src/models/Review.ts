@@ -4,7 +4,7 @@ import sequelize from '../config/database';
 export class Review extends Model {
   public id!: number;
   public requestDate!: Date;
-
+  public approved!: boolean;
   public paperId!: number;
   public requesterId!: number;
   public firstReviewerId!: number;
@@ -20,6 +20,10 @@ Review.init({
   requestDate: { 
     type: DataTypes.DATE, 
     allowNull: false 
+  },
+  status: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
   },
   paperId: {
     type: DataTypes.INTEGER,

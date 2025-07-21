@@ -7,6 +7,7 @@ export class ReviewRepository {
   async createReview(data: {
     paperId: number;
     requesterId: number;
+    approved: boolean;
     firstReviewerId: number;
     secondReviewerId: number;
     requestDate?: Date;
@@ -49,6 +50,19 @@ export class ReviewRepository {
     return await Review.findAll({
       include: ['requester', 'firstReviewer', 'secondReviewer', 'results']
     });
+  }
+
+  async updateReview(id: number, data: {
+  paperId?: number;
+  approved?: boolean;
+  firstReviewerId?: number;
+  secondReviewerId?: number;
+  }) {
+    const review = await Review.findByPk(id);
+    if (!review) return null;
+    
+    await review.update(data);
+    return await this.getReviewById(id);
   }
 
   async deleteReview(id: number) {

@@ -6,10 +6,20 @@ export class ReviewService {
   async createReview(data: {
     paperId: number;
     requesterId: number;
+    approved: boolean;
     firstReviewerId: number;
     secondReviewerId: number;
   }) {
     return await this.reviewRepo.createReview(data);
+  }
+
+  async updateReview(id: number, data: {
+  paperId?: number;
+  approved?: boolean;
+  firstReviewerId?: number;
+  secondReviewerId?: number;
+  }) {
+    return await this.reviewRepo.updateReview(id, data);
   }
 
   async getReviewById(id: number) {

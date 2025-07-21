@@ -36,6 +36,28 @@ export const ReviewResultController = {
     }
   },
 
+  async update(req: Request, res: Response): Promise<void> {
+  try {
+    const id = Number(req.params.id);
+    const { firstReviewerNote, secondReviewerNote, approval } = req.body;
+    
+    const updatedResult = await service.updateResult(id, {
+      firstReviewerNote,
+      secondReviewerNote,
+      approval
+    });
+    
+    if (!updatedResult) {
+      res.status(404).json({ message: 'Review result not found' });
+      return;
+    }
+    
+    res.status(200).json(updatedResult);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
   async delete(req: Request, res: Response): Promise<void> {
     try {
       const deleted = await service.deleteResult(Number(req.params.id));

@@ -20,6 +20,9 @@ const router = Router();
  *         paperId:
  *           type: integer
  *           example: 10
+ *         approved:
+ *           type: boolean
+ *           example: false
  *         requesterId:
  *           type: integer
  *           example: 5
@@ -207,6 +210,66 @@ router.get('/paper/:paperId', ReviewController.getByPaper);
  *                   type: string
  */
 router.get('/', ReviewController.getAll);
+
+/**
+ * @swagger
+ * /reviews/{id}:
+ *   put:
+ *     summary: Update a review by its id
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Review Id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               paperId:
+ *                 type: integer
+ *                 example: 10
+ *               approved:
+ *                 type: boolean
+ *                 example: true
+ *               firstReviewerId:
+ *                 type: integer
+ *                 example: 7
+ *               secondReviewerId:
+ *                 type: integer
+ *                 example: 8
+ *     responses:
+ *       200:
+ *         description: Review successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Review'
+ *       404:
+ *         description: Review not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+router.put('/:id', ReviewController.update);
 
 /**
  * 

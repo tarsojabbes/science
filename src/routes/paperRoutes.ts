@@ -154,7 +154,7 @@ router.get("/:id", PaperController.findById);
  *           type: integer
  *         description: Paper ID
  *     responses:
- *       200:
+ *       204:
  *         description: Paper deleted
  *       404:
  *         description: Paper not found
@@ -194,8 +194,12 @@ router.delete("/:id", PaperController.delete);
  *                 items:
  *                   type: integer
  *     responses:
- *       204:
+ *       200:
  *         description: Paper updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paper'
  *       404:
  *         description: Paper not found
  *       500:
@@ -252,7 +256,7 @@ router.post("/:paperId/researcher/:researcherId", PaperController.addResearcher)
  *           type: integer
  *         description: Researcher ID
  *     responses:
- *       200:
+ *       204:
  *         description: Researcher removed from paper
  *       404:
  *         description: Paper or researcher not found

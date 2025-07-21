@@ -55,7 +55,7 @@ export const JournalController = {
         res.status(404).json({ message: 'Journal not found' });
         return;
       }
-      res.json(journal);
+      res.sendStatus(204);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

@@ -14,6 +14,20 @@ export class ReviewResultRepository {
     });
   }
 
+  async updateResult(id: number, data: {
+  firstReviewerNote?: string;
+  secondReviewerNote?: string;
+  approval?: boolean;
+  }) {
+    const result = await ReviewResult.findByPk(id);
+    if (!result) return null;
+    
+    await result.update(data);
+    
+    // Return the updated result
+    return await this.getResultById(id);
+  }
+
   async getResultsByReview(reviewId: number) {
     return await ReviewResult.findAll({
       where: { reviewId }

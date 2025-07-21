@@ -177,12 +177,8 @@ router.get("/:id", UserController.findById);
  *         schema:
  *           type: integer
  *     responses:
- *       200:
+ *       204:
  *         description: User successfully deleted
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:
@@ -211,8 +207,12 @@ router.delete("/:id", UserController.delete);
  *           schema:
  *             $ref: '#/components/schemas/UserUpdateInput'
  *     responses:
- *       204:
+ *       200:
  *         description: User successfully updated (no content)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:

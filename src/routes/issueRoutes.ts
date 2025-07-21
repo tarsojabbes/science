@@ -227,12 +227,8 @@ router.put('/:id', IssueController.update);
  *         schema:
  *           type: integer
  *     responses:
- *       200:
+ *       204:
  *         description: Issue successfully deleted
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Issue'
  *       404:
  *         description: Issue not found
  *       500:

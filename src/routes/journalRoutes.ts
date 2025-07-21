@@ -252,7 +252,7 @@ router.put('/:id', JournalController.update);
  *         schema:
  *           type: integer
  *     responses:
- *       200:
+ *       204:
  *         description: Journal successfully deleted
  *       404:
  *         description: Journal not found

@@ -20,7 +20,7 @@ export const UserController = {
         res.status(404).json({ message: "User not found" });
         return;
       }
-      res.status(204).send();
+      res.status(200).json(user);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -55,7 +55,7 @@ export const UserController = {
         res.status(404).json({ message: "User not found" });
         return;
       }
-      res.json(deleted);
+      res.sendStatus(204);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

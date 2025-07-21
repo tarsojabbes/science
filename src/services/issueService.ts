@@ -20,7 +20,12 @@ export class IssueService {
     return await this.repo.getIssueById(id);
   }
 
-  async updateIssue(id: number, data: any) {
+  async updateIssue(id: number, data: {
+    number: number;
+    volume: number;
+    journalId: number;
+    paperIds: number[];
+  }) {
     return await this.repo.updateIssue(id, data);
   }
 

@@ -162,6 +162,63 @@ router.get('/review/:reviewId', ReviewResultController.getByReview);
 /**
  * @swagger
  * /review-results/{id}:
+ *   put:
+ *     summary: Update a review result by its ID
+ *     tags: [ReviewResults]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the review result
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstReviewerNote:
+ *                 type: string
+ *                 example: "Updated note from the first reviewer"
+ *               secondReviewerNote:
+ *                 type: string
+ *                 example: "Updated comments from the second reviewer"
+ *               approval:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Review result successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ReviewResult'
+ *       404:
+ *         description: Review result not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+router.put('/:id', ReviewResultController.update);
+
+/**
+ * @swagger
+ * /review-results/{id}:
  *   delete:
  *     summary: Delete a review result by its ID
  *     tags: [ReviewResults]
