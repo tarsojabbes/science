@@ -22,8 +22,8 @@ app.use("/users", userRoutes);
 app.use("/papers", paperRoutes);
 app.use("/journals", journalRoutes);
 app.use("/issues", issueRoutes);
-app.use("/review", reviewRoutes);
-app.use("/review-result", reviewResultRoutes);
+app.use("/reviews", reviewRoutes);
+app.use("/review-results", reviewResultRoutes);
 
 sequelize.sync().then(() => {
   console.log("Successfully connected to PostgreSQL");
