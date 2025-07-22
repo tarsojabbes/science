@@ -21,7 +21,7 @@ Review.init({
     type: DataTypes.DATE, 
     allowNull: false 
   },
-  status: {
+  approved: {
     type: DataTypes.BOOLEAN,
     allowNull: false
   },
