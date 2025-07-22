@@ -25,7 +25,7 @@ app.use("/issues", issueRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/review-results", reviewResultRoutes);
 
-sequelize.sync({force: true}).then(() => {
+sequelize.sync().then(() => {
   console.log("Successfully connected to PostgreSQL");
   app.listen(3000, () => console.log("Server running on port 3000"));
 }).catch((error) => {
