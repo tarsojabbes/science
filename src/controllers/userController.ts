@@ -66,13 +66,15 @@ export const UserController = {
     }
   },
 
-  async login(req: Request, res: Response): Promise<Response> {
+  async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
       const authResult = await service.authenticate(email, password);
-      return res.json(authResult);
+      res.json(authResult);
+      return 
     } catch (error: any) {
-      return res.status(401).json({ message: error.message });
+      res.status(401).json({ message: error.message });
+      return 
     }
   }
 };

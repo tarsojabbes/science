@@ -221,4 +221,6 @@ router.delete("/:id", authenticateJWT, UserController.delete);
  */
 router.put("/:id", authenticateJWT, UserController.update);
 
+router.post("/login", UserController.login)
+
 export default router;

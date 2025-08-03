@@ -2,8 +2,10 @@ import { Paper } from "../models/Paper";
 import { PaperRepository } from "../repository/paperRepository";
 import { UserService } from "./userService";
 import {User} from "../models/User"
+import { UserRepository } from "../repository/userRepository";
 
-const userService = new UserService();
+const userRepository = new UserRepository()
+const userService = new UserService(userRepository);
 
 export class PaperService {
   private repo = new PaperRepository();
