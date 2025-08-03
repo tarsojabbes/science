@@ -1,15 +1,20 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
+import { UserRepository } from "../repository/userRepository";
 
-const service = new UserService();
+const repository = new UserRepository();
+const service = new UserService(repository);
 
 export const UserController = {
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const user = await service.createUser(req.body);
+      const userData = req.body; 
+      const user = await service.createUserCrypt(userData);
       res.status(201).json(user);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      return 
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+      return 
     }
   },
 
@@ -58,6 +63,16 @@ export const UserController = {
       res.sendStatus(204);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    }
+  },
+
+  async login(req: Request, res: Response): Promise<Response> {
+    try {
+      const { email, password } = req.body;
+      const authResult = await service.authenticate(email, password);
+      return res.json(authResult);
+    } catch (error: any) {
+      return res.status(401).json({ message: error.message });
     }
   }
 };

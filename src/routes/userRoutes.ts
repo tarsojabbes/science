@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
+import { authenticateJWT } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -132,7 +133,7 @@ router.post("/", UserController.create);
  *       500:
  *         description: Server error
  */
-router.get("/", UserController.list);
+router.get("/", authenticateJWT, UserController.list);
 
 /**
  * @swagger
@@ -160,7 +161,7 @@ router.get("/", UserController.list);
  *       500:
  *         description: Server error
  */
-router.get("/:id", UserController.findById);
+router.get("/:id", authenticateJWT, UserController.findById);
 
 /**
  * @swagger
@@ -184,7 +185,7 @@ router.get("/:id", UserController.findById);
  *       500:
  *         description: Server error
  */
-router.delete("/:id", UserController.delete);
+router.delete("/:id", authenticateJWT, UserController.delete);
 
 /**
  * @swagger
@@ -218,6 +219,6 @@ router.delete("/:id", UserController.delete);
  *       500:
  *         description: Server error
  */
-router.put("/:id", UserController.update);
+router.put("/:id", authenticateJWT, UserController.update);
 
 export default router;
