@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { ReviewResultController } from '../controllers/reviewResultController';
+import { authenticateJWT } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -82,7 +83,7 @@ const router = Router();
  *                 error:
  *                   type: string
  */
-router.post('/', ReviewResultController.create);
+router.post('/', authenticateJWT, ReviewResultController.create);
 
 /**
  * @swagger
@@ -123,7 +124,7 @@ router.post('/', ReviewResultController.create);
  *                 error:
  *                   type: string
  */
-router.get('/:id', ReviewResultController.getById);
+router.get('/:id', authenticateJWT, ReviewResultController.getById);
 
 /**
  * @swagger
@@ -157,7 +158,7 @@ router.get('/:id', ReviewResultController.getById);
  *                 error:
  *                   type: string
  */
-router.get('/review/:reviewId', ReviewResultController.getByReview);
+router.get('/review/:reviewId', authenticateJWT, ReviewResultController.getByReview);
 
 /**
  * @swagger
@@ -214,7 +215,7 @@ router.get('/review/:reviewId', ReviewResultController.getByReview);
  *                 error:
  *                   type: string
  */
-router.put('/:id', ReviewResultController.update);
+router.put('/:id', authenticateJWT, ReviewResultController.update);
 
 /**
  * @swagger
@@ -251,6 +252,6 @@ router.put('/:id', ReviewResultController.update);
  *                 error:
  *                   type: string
  */
-router.delete('/:id', ReviewResultController.delete);
+router.delete('/:id', authenticateJWT, ReviewResultController.delete);
 
 export default router;

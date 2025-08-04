@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PaperController } from "../controllers/paperController";
+import { authenticateJWT } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -101,7 +102,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.post("/", PaperController.create);
+router.post("/", authenticateJWT, PaperController.create);
 
 /**
  * @swagger
@@ -115,7 +116,7 @@ router.post("/", PaperController.create);
  *       500:
  *         description: Server error
  */
-router.get("/", PaperController.list);
+router.get("/", authenticateJWT, PaperController.list);
 
 /**
  * @swagger
@@ -138,7 +139,7 @@ router.get("/", PaperController.list);
  *       500:
  *         description: Server error
  */
-router.get("/:id", PaperController.findById);
+router.get("/:id", authenticateJWT, PaperController.findById);
 
 /**
  * @swagger
@@ -161,7 +162,7 @@ router.get("/:id", PaperController.findById);
  *       500:
  *         description: Server error
  */
-router.delete("/:id", PaperController.delete);
+router.delete("/:id", authenticateJWT, PaperController.delete);
 
 /**
  * @swagger
@@ -205,7 +206,7 @@ router.delete("/:id", PaperController.delete);
  *       500:
  *         description: Server error
  */
-router.put("/:id", PaperController.update);
+router.put("/:id", authenticateJWT, PaperController.update);
 
 /**
  * @swagger
@@ -234,7 +235,7 @@ router.put("/:id", PaperController.update);
  *       500:
  *         description: Server error
  */
-router.post("/:paperId/researcher/:researcherId", PaperController.addResearcher);
+router.post("/:paperId/researcher/:researcherId", authenticateJWT, PaperController.addResearcher);
 
 /**
  * @swagger
@@ -263,7 +264,7 @@ router.post("/:paperId/researcher/:researcherId", PaperController.addResearcher)
  *       500:
  *         description: Server error
  */
-router.delete("/:paperId/researcher/:researcherId", PaperController.removeResearcher);
+router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperController.removeResearcher);
 
 /**
  * @swagger
@@ -286,6 +287,6 @@ router.delete("/:paperId/researcher/:researcherId", PaperController.removeResear
  *       500:
  *         description: Server error
  */
-router.get("/researchers/:researcherId", PaperController.getPaperByResearcher);
+router.get("/researchers/:researcherId", authenticateJWT, PaperController.getPaperByResearcher);
 
 export default router;

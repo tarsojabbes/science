@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { ReviewController } from '../controllers/reviewController';
+import { authenticateJWT } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -106,7 +107,7 @@ const router = Router();
  *                   type: string
  *
  */
-router.post('/', ReviewController.create);
+router.post('/', authenticateJWT, ReviewController.create);
 
 /**
  * @swagger
@@ -147,7 +148,7 @@ router.post('/', ReviewController.create);
  *                 error:
  *                   type: string
  */
-router.get('/:id', ReviewController.getById);
+router.get('/:id', authenticateJWT, ReviewController.getById);
 
 
 /**
@@ -182,7 +183,7 @@ router.get('/:id', ReviewController.getById);
  *                 error:
  *                   type: string
  */
-router.get('/paper/:paperId', ReviewController.getByPaper);
+router.get('/paper/:paperId', authenticateJWT, ReviewController.getByPaper);
 
 /**
  * @swagger
@@ -209,7 +210,7 @@ router.get('/paper/:paperId', ReviewController.getByPaper);
  *                 error:
  *                   type: string
  */
-router.get('/', ReviewController.getAll);
+router.get('/', authenticateJWT, ReviewController.getAll);
 
 /**
  * @swagger
@@ -269,7 +270,7 @@ router.get('/', ReviewController.getAll);
  *                 error:
  *                   type: string
  */
-router.put('/:id', ReviewController.update);
+router.put('/:id', authenticateJWT, ReviewController.update);
 
 /**
  * 
@@ -307,6 +308,6 @@ router.put('/:id', ReviewController.update);
  *                 error:
  *                   type: string
  */
-router.delete('/:id', ReviewController.delete);
+router.delete('/:id', authenticateJWT, ReviewController.delete);
 
 export default router;

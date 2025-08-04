@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { JournalController } from "../controllers/journalController";
+import { authenticateJWT } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -173,7 +174,7 @@ router.post('/', JournalController.create);
  *       500:
  *         description: Server error
  */
-router.get('/', JournalController.getAll);
+router.get('/', authenticateJWT, JournalController.getAll);
 
 /**
  * @swagger
@@ -201,7 +202,7 @@ router.get('/', JournalController.getAll);
  *       500:
  *         description: Server error
  */
-router.get('/:id', JournalController.getById);
+router.get('/:id', authenticateJWT, JournalController.getById);
 
 /**
  * @swagger
@@ -235,7 +236,7 @@ router.get('/:id', JournalController.getById);
  *       500:
  *         description: Server error
  */
-router.put('/:id', JournalController.update);
+router.put('/:id', authenticateJWT, JournalController.update);
 
 /**
  * @swagger
@@ -259,6 +260,6 @@ router.put('/:id', JournalController.update);
  *       500:
  *         description: Server error
  */
-router.delete('/:id', JournalController.delete);
+router.delete('/:id', authenticateJWT, JournalController.delete);
 
 export default router;
