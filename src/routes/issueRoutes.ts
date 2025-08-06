@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { IssueController } from "../controllers/issueController";
+import { authenticateJWT } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -126,7 +127,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.post('/',  IssueController.create);
+router.post('/', authenticateJWT, IssueController.create);
 
 /**
  * @swagger
@@ -148,7 +149,7 @@ router.post('/',  IssueController.create);
  *       500:
  *         description: Server error
  */
-router.get('/', IssueController.getAll);
+//router.get('/', IssueController.getAll); // DEPRECATED
 
 /**
  * @swagger
@@ -176,7 +177,7 @@ router.get('/', IssueController.getAll);
  *       500:
  *         description: Server error
  */
-router.get('/:id', IssueController.getById);
+router.get('/:id', authenticateJWT, IssueController.getById);
 
 /**
  * @swagger
@@ -210,7 +211,7 @@ router.get('/:id', IssueController.getById);
  *       500:
  *         description: Server error
  */
-router.put('/:id', IssueController.update);
+router.put('/:id', authenticateJWT, IssueController.update);
 
 /**
  * @swagger
@@ -234,8 +235,8 @@ router.put('/:id', IssueController.update);
  *       500:
  *         description: Server error
  */
-router.delete('/:id', IssueController.delete);
+router.delete('/:id', authenticateJWT, IssueController.delete);
 
-router.get('/paginated/list', IssueController.listWithPaginationAndFilter);
+router.get('/', authenticateJWT, IssueController.listWithPaginationAndFilter);
 
 export default router;

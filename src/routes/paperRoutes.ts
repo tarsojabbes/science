@@ -116,7 +116,7 @@ router.post("/", authenticateJWT, PaperController.create);
  *       500:
  *         description: Server error
  */
-router.get("/", authenticateJWT, PaperController.list);
+// router.get("/", authenticateJWT, PaperController.list); // DEPRECATED
 
 /**
  * @swagger
@@ -287,10 +287,12 @@ router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperContro
  *       500:
  *         description: Server error
  */
-router.get("/researchers/:researcherId", authenticateJWT, PaperController.getPaperByResearcher);
+// router.get("/researchers/:researcherId", authenticateJWT, PaperController.getPaperByResearcher); // DEPRECATED
 
-router.get('/paginated/list', PaperController.listWithPagination);
-router.get('/paginated/researcher/:researcherId', PaperController.getPaperByResearcherPaginated);
-router.get('/paginated/journal/:journalId', PaperController.getPapersByJournalPaginated);
+router.get('/', authenticateJWT, PaperController.listWithPagination);
+
+router.get('/researchers/:researcherId', authenticateJWT, PaperController.getPaperByResearcherPaginated);
+
+router.get('/journal/:journalId', authenticateJWT, PaperController.getPapersByJournalPaginated);
 
 export default router;

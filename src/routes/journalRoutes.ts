@@ -174,7 +174,7 @@ router.post('/', authenticateJWT, JournalController.create);
  *       500:
  *         description: Server error
  */
-router.get('/', authenticateJWT, JournalController.getAll);
+// router.get('/', authenticateJWT, JournalController.getAll); // DEPRECATED
 
 /**
  * @swagger
@@ -262,6 +262,6 @@ router.put('/:id', authenticateJWT, JournalController.update);
  */
 router.delete('/:id', authenticateJWT, JournalController.delete);
 
-router.get('/paginated/list', JournalController.listWithPaginationAndFilter);
+router.get('/paginated/list', authenticateJWT, JournalController.listWithPaginationAndFilter);
 
 export default router;
