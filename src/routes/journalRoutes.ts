@@ -152,7 +152,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.post('/', JournalController.create);
+router.post('/', authenticateJWT, JournalController.create);
 
 /**
  * @swagger
@@ -261,5 +261,7 @@ router.put('/:id', authenticateJWT, JournalController.update);
  *         description: Server error
  */
 router.delete('/:id', authenticateJWT, JournalController.delete);
+
+router.get('/paginated/list', JournalController.listWithPaginationAndFilter);
 
 export default router;

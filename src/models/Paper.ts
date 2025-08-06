@@ -8,6 +8,8 @@ export class Paper extends Model {
   public publishedDate!: Date;
   public submissionDate!: Date;
   public url!: string;
+  public journalId!: number;
+  public issueId!: number;
 
   public getResearchers!: BelongsToManyGetAssociationsMixin<User>;
   public setResearchers!: BelongsToManySetAssociationsMixin<User, number>;
@@ -44,14 +46,14 @@ Paper.init({
     allowNull: true
   },
   journalId: {
-  type: DataTypes.INTEGER,
-  allowNull: false,
-  references: { model: 'journals', key: 'id' }
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: 'journals', key: 'id' }
   },
   issueId: {
-  type: DataTypes.INTEGER,
-  allowNull: true,
-  references: { model: 'issues', key: 'id' }
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: { model: 'issues', key: 'id' }
   }
 }, {
   sequelize,

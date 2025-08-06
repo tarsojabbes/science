@@ -2,6 +2,8 @@ import { Journal } from '../models/Journal';
 import { Issue } from '../models/Issue';
 import { Paper } from '../models/Paper';
 import { User } from '../models/User';
+import { JournalFilters, PaginationOptions, PaginationResult } from '../types/pagination.types';
+import { Op, where } from 'sequelize';
 
 export class JournalRepository {
   async createJournal(data: {
@@ -115,5 +117,49 @@ export class JournalRepository {
     if (!journal) return null;
     await journal.destroy();
     return journal;
+  }
+
+  async getAllJournalsWithPaginationAndFilters(
+    options: PaginationOptions,
+    filters: JournalFilters = {}
+  ): Promise<PaginationResult<Journal>> {
+    const whereClause: any = {};
+
+    if (filters.name) {
+      whereClause.name = {
+        [Op.iLike]: `%${filters.name}%`
+      };
+    }
+
+    if (filters.issn) {
+      whereClause.issn = filters.issn;
+    }
+
+    return await Journal.findAndCountAll({
+      where: whereClause,
+      limit: options.limit,
+      offset: options.offset,
+      order: options.order || [["id", "DESC"]],
+      include: [
+        {
+          model: Issue,
+          as: 'issues',
+          include: [
+            {
+              model: Paper,
+              as: 'papers',
+              include: [
+                {
+                  model: User,
+                  as: 'researchers',
+                  through: { attributes: [] }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      distinct: true
+    });
   }
 }

@@ -1,5 +1,7 @@
+import { Op } from "sequelize";
 import { Paper } from "../models/Paper";
 import { User } from "../models/User";
+import { PaginationOptions, PaginationResult, PaperFilters } from "../types/pagination.types";
 
 export class PaperRepository {
   async createPaper(data: {
@@ -155,5 +157,83 @@ export class PaperRepository {
         through: { attributes: [] }
       }]
     });
+  }
+
+  async getAllPapersWithPagination(
+    options: PaginationOptions,
+    filters: PaperFilters = {}
+  ): Promise<PaginationResult<Paper>> {
+    const whereClause: any = {};
+
+    if (filters.name) {
+      whereClause.name = {
+        [Op.iLike]: `%${filters.name}%`
+      };
+    }
+
+    if (filters.journalId) {
+      whereClause.journalId = filters.journalId;
+    }
+
+    if (filters.issueId) {
+      whereClause.issueId = filters.issueId;
+    }
+
+    if (filters.publishedAfter || filters.publishedBefore) {
+      whereClause.publishedDate = {};
+      
+      if (filters.publishedAfter) {
+        whereClause.publishedDate[Op.gte] = filters.publishedAfter;
+      }
+      
+      if (filters.publishedBefore) {
+        whereClause.publishedDate[Op.lte] = filters.publishedBefore;
+      }
+    }
+
+    return await Paper.findAndCountAll({
+      where: whereClause,
+      limit: options.limit,
+      offset: options.offset,
+      order: options.order || [['id', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'researchers',
+          attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+          through: { attributes: [] }
+        }
+      ],
+      distinct: true
+    });
+  }
+
+  async getPapersByResearcherWithPagination(
+    userId: number, 
+    options: PaginationOptions
+  ): Promise<PaginationResult<Paper>> {
+    return await Paper.findAndCountAll({
+      limit: options.limit,
+      offset: options.offset,
+      order: options.order || [['id', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'researchers',
+          where: { id: userId },
+          attributes: ['id', 'name', 'email', 'institution', 'orcid'],
+          through: { attributes: [] }
+        }
+      ],
+      distinct: true
+    });
+  }
+
+  async getPapersByJournalWithPagination(
+    journalId: number,
+    options: PaginationOptions
+  ): Promise<PaginationResult<Paper>> {
+    const filters: PaperFilters = { journalId };
+    return this.getAllPapersWithPagination(options, filters);
   }
 }

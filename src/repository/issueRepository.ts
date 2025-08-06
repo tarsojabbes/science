@@ -1,6 +1,7 @@
 import { Issue } from '../models/Issue';
 import { Paper } from '../models/Paper';
 import { User } from '../models/User';
+import { IssueFilters, PaginationOptions, PaginationResult } from '../types/pagination.types';
 
 export class IssueRepository {
   async createIssue(data: {
@@ -118,5 +119,45 @@ export class IssueRepository {
     
     await issue.destroy();
     return issue;
+  }
+
+  async getAllIssuesWithPaginationAndFilter(
+    options: PaginationOptions,
+    filters: IssueFilters = {}
+  ): Promise<PaginationResult<Issue>> {
+    const whereClause: any = {};
+
+    if (filters.journalId) {
+      whereClause.journalId = filters.journalId;
+    }
+
+    if (filters.number) {
+      whereClause.number = filters.number;
+    }
+
+    if (filters.publishedDate) {
+      whereClause.publishedDate = filters.publishedDate;
+    }
+
+    if (filters.volume) {
+      whereClause.volume = filters.volume;
+    }
+
+    return await Issue.findAndCountAll({
+      where: whereClause,
+      limit: options.limit,
+      offset: options.offset,
+      order: options.order || [['id', 'DESC']],
+      include: [{ 
+        model: Paper, 
+        as: 'papers',
+        include: [{ 
+          model: User, 
+          as: 'researchers',
+          through: { attributes: [] }
+        }]
+      }],
+      distinct: true
+    })
   }
 }

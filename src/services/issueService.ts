@@ -1,4 +1,6 @@
+import { Issue } from '../models/Issue';
 import { IssueRepository } from '../repository/issueRepository';
+import { IssueFilters, PaginationOptions, PaginationResponse } from '../types/pagination.types';
 
 export class IssueService {
   private repo = new IssueRepository();
@@ -31,5 +33,29 @@ export class IssueService {
 
   async deleteIssue(id: number) {
     return await this.repo.deleteIssue(id);
+  }
+
+  async getAllIssuesWithPaginationAndFilter(
+    options: PaginationOptions,
+    filters: IssueFilters = {}
+  ): Promise<PaginationResponse<Issue>> {
+    const result = await this.repo.getAllIssuesWithPaginationAndFilter(options, filters);
+    
+    const totalPages = Math.ceil(result.count / options.limit);
+    
+    return {
+      success: true,
+      data: result.rows,
+      pagination: {
+        currentPage: options.page,
+        totalPages,
+        totalItems: result.count,
+        hasNextPage: options.page < totalPages,
+        hasPrevPage: options.page > 1,
+        limit: options.limit,
+        prevPage: options.page > 1 ? options.page - 1 : null,
+        nextPage: options.page < totalPages ? options.page + 1 : null
+      }
+    };
   }
 }

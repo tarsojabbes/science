@@ -236,4 +236,6 @@ router.put('/:id', IssueController.update);
  */
 router.delete('/:id', IssueController.delete);
 
+router.get('/paginated/list', IssueController.listWithPaginationAndFilter);
+
 export default router;

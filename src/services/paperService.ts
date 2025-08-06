@@ -3,6 +3,7 @@ import { PaperRepository } from "../repository/paperRepository";
 import { UserService } from "./userService";
 import {User} from "../models/User"
 import { UserRepository } from "../repository/userRepository";
+import { PaginationOptions, PaginationResponse, PaperFilters } from "../types/pagination.types";
 
 const userRepository = new UserRepository()
 const userService = new UserService(userRepository);
@@ -53,4 +54,77 @@ export class PaperService {
   async getPapersByResearcher(userId: number) {
     return await this.repo.getPapersByResearcher(userId);
   }
+
+  async getAllPapersWithPagination(
+    options: PaginationOptions,
+    filters: PaperFilters = {}
+  ): Promise<PaginationResponse<Paper>> {
+    const result = await this.repo.getAllPapersWithPagination(options, filters);
+    
+    const totalPages = Math.ceil(result.count / options.limit);
+    
+    return {
+      success: true,
+      data: result.rows,
+      pagination: {
+        currentPage: options.page,
+        totalPages,
+        totalItems: result.count,
+        hasNextPage: options.page < totalPages,
+        hasPrevPage: options.page > 1,
+        limit: options.limit,
+        prevPage: options.page > 1 ? options.page - 1 : null,
+        nextPage: options.page < totalPages ? options.page + 1 : null
+      }
+    };
+  }
+
+  async getPapersByResearcherWithPagination(
+    userId: number,
+    options: PaginationOptions
+  ): Promise<PaginationResponse<Paper>> {
+    const result = await this.repo.getPapersByResearcherWithPagination(userId, options);
+    
+    const totalPages = Math.ceil(result.count / options.limit);
+    
+    return {
+      success: true,
+      data: result.rows,
+      pagination: {
+        currentPage: options.page,
+        totalPages,
+        totalItems: result.count,
+        hasNextPage: options.page < totalPages,
+        hasPrevPage: options.page > 1,
+        limit: options.limit,
+        prevPage: options.page > 1 ? options.page - 1 : null,
+        nextPage: options.page < totalPages ? options.page + 1 : null
+      }
+    };
+  }
+
+  async getPapersByJournalWithPagination(
+    journalId: number,
+    options: PaginationOptions
+  ): Promise<PaginationResponse<Paper>> {
+    const result = await this.repo.getPapersByJournalWithPagination(journalId, options);
+    
+    const totalPages = Math.ceil(result.count / options.limit);
+    
+    return {
+      success: true,
+      data: result.rows,
+      pagination: {
+        currentPage: options.page,
+        totalPages,
+        totalItems: result.count,
+        hasNextPage: options.page < totalPages,
+        hasPrevPage: options.page > 1,
+        limit: options.limit,
+        prevPage: options.page > 1 ? options.page - 1 : null,
+        nextPage: options.page < totalPages ? options.page + 1 : null
+      }
+    };
+  }
+
 }

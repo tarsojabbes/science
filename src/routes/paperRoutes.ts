@@ -289,4 +289,8 @@ router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperContro
  */
 router.get("/researchers/:researcherId", authenticateJWT, PaperController.getPaperByResearcher);
 
+router.get('/paginated/list', PaperController.listWithPagination);
+router.get('/paginated/researcher/:researcherId', PaperController.getPaperByResearcherPaginated);
+router.get('/paginated/journal/:journalId', PaperController.getPapersByJournalPaginated);
+
 export default router;
