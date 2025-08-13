@@ -1,9 +1,11 @@
 import { Issue } from '../models/Issue';
 import { IssueRepository } from '../repository/issueRepository';
+import { PaperRepository } from '../repository/paperRepository';
 import { IssueFilters, PaginationOptions, PaginationResponse } from '../types/pagination.types';
 
 export class IssueService {
   private repo = new IssueRepository();
+  private paperRepo = new PaperRepository();
 
   async createIssue(data: {
     number: number;
@@ -11,6 +13,22 @@ export class IssueService {
     journalId: number;
     paperIds: number[];
   }) {
+    // Validate that all papers are approved
+    if (data.paperIds && data.paperIds.length > 0) {
+      for (const paperId of data.paperIds) {
+        const paper = await this.paperRepo.findById(paperId);
+        if (!paper) {
+          throw new Error(`Paper with ID ${paperId} not found`);
+        }
+        if (paper.status !== 'approved') {
+          throw new Error(`Paper with ID ${paperId} is not approved (status: ${paper.status})`);
+        }
+        if (paper.journalId !== data.journalId) {
+          throw new Error(`Paper with ID ${paperId} does not belong to journal ${data.journalId}`);
+        }
+      }
+    }
+
     return await this.repo.createIssue(data);
   }
 
@@ -28,6 +46,22 @@ export class IssueService {
     journalId: number;
     paperIds: number[];
   }) {
+    // Validate that all papers are approved
+    if (data.paperIds && data.paperIds.length > 0) {
+      for (const paperId of data.paperIds) {
+        const paper = await this.paperRepo.findById(paperId);
+        if (!paper) {
+          throw new Error(`Paper with ID ${paperId} not found`);
+        }
+        if (paper.status !== 'approved') {
+          throw new Error(`Paper with ID ${paperId} is not approved (status: ${paper.status})`);
+        }
+        if (paper.journalId !== data.journalId) {
+          throw new Error(`Paper with ID ${paperId} does not belong to journal ${data.journalId}`);
+        }
+      }
+    }
+
     return await this.repo.updateIssue(id, data);
   }
 

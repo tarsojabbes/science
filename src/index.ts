@@ -8,6 +8,8 @@ import journalRoutes from "./routes/journalRoutes";
 import issueRoutes from "./routes/issueRoutes";
 import reviewRoutes from "./routes/reviewRoutes";
 import reviewResultRoutes from "./routes/reviewResultRoutes";
+import journalEditorRoutes from "./routes/journalEditorRoutes";
+import journalReviewerRoutes from "./routes/journalReviewerRoutes";
 
 import './associations';
 import { setupSwagger } from "./config/swagger";
@@ -24,6 +26,8 @@ app.use("/journals", journalRoutes);
 app.use("/issues", issueRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/review-results", reviewResultRoutes);
+app.use("/", journalEditorRoutes);
+app.use("/", journalReviewerRoutes);
 
 sequelize.sync().then(() => {
   console.log("Successfully connected to PostgreSQL");

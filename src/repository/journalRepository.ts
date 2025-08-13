@@ -54,6 +54,16 @@ export class JournalRepository {
               ]
             }
           ]
+        },
+        {
+          model: User,
+          as: 'editors',
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'reviewers',
+          through: { attributes: [] }
         }
       ]
     });
@@ -157,6 +167,16 @@ export class JournalRepository {
               ]
             }
           ]
+        },
+        {
+          model: User,
+          as: 'editors',
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'reviewers',
+          through: { attributes: [] }
         }
       ],
       distinct: true

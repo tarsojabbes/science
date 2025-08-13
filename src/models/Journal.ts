@@ -2,6 +2,7 @@ import { Model, DataTypes, Association } from 'sequelize';
 import sequelize from '../config/database';
 import { Issue } from './Issue';
 import { Paper } from './Paper';
+import { User } from './User';
 
 export class Journal extends Model {
   public id!: number;
@@ -10,10 +11,14 @@ export class Journal extends Model {
 
   public issues?: Issue[];
   public papers?: Paper[];
+  public editors?: User[];
+  public reviewers?: User[];
   
   public static associations: {
     issues: Association<Journal, Issue>;
     papers: Association<Journal, Paper>;
+    editors: Association<Journal, User>;
+    reviewers: Association<Journal, User>;
   }
 }
 

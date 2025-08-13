@@ -4,11 +4,15 @@ import sequelize from '../config/database';
 export class Review extends Model {
   public id!: number;
   public requestDate!: Date;
-  public approved!: boolean;
+  public status!: string; // 'pending', 'in_progress', 'completed', 'cancelled'
   public paperId!: number;
   public requesterId!: number;
   public firstReviewerId!: number;
   public secondReviewerId!: number;
+  public assignedDate!: Date;
+  public completedDate!: Date;
+  public finalDecision!: string; // 'approved', 'rejected', 'needs_revision'
+  public editorNotes!: string;
 }
 
 Review.init({
@@ -21,9 +25,13 @@ Review.init({
     type: DataTypes.DATE, 
     allowNull: false 
   },
-  approved: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'pending',
+    validate: {
+      isIn: [['pending', 'in_progress', 'completed', 'cancelled']]
+    }
   },
   paperId: {
     type: DataTypes.INTEGER,
@@ -44,6 +52,25 @@ Review.init({
     type: DataTypes.INTEGER,
     allowNull: true,
     references: { model: 'users', key: 'id' }
+  },
+  assignedDate: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  completedDate: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  finalDecision: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isIn: [['approved', 'rejected', 'needs_revision']]
+    }
+  },
+  editorNotes: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
   sequelize,

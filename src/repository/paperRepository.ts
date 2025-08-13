@@ -38,7 +38,8 @@ export class PaperRepository {
     submissionDate?: Date;
     url?: string;
     researcherIds?: number[];
-  }) {
+    status?: string;
+  }): Promise<Paper | null> {
     const { researcherIds, ...paperData } = data;
     
     const [rowsUpdated] = await Paper.update(paperData, {

@@ -262,6 +262,6 @@ router.put('/:id', authenticateJWT, JournalController.update);
  */
 router.delete('/:id', authenticateJWT, JournalController.delete);
 
-router.get('/paginated/list', authenticateJWT, JournalController.listWithPaginationAndFilter);
+router.get('/', authenticateJWT, JournalController.listWithPaginationAndFilter);
 
 export default router;

@@ -10,6 +10,7 @@ export class Paper extends Model {
   public url!: string;
   public journalId!: number;
   public issueId!: number;
+  public status!: string; // 'submitted', 'under_review', 'approved', 'rejected', 'published'
 
   public getResearchers!: BelongsToManyGetAssociationsMixin<User>;
   public setResearchers!: BelongsToManySetAssociationsMixin<User, number>;
@@ -54,6 +55,14 @@ Paper.init({
     type: DataTypes.INTEGER,
     allowNull: true,
     references: { model: 'issues', key: 'id' }
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'submitted',
+    validate: {
+      isIn: [['submitted', 'under_review', 'approved', 'rejected', 'published']]
+    }
   }
 }, {
   sequelize,

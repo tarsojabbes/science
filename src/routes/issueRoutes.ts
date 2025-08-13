@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { IssueController } from "../controllers/issueController";
 import { authenticateJWT } from "../middlewares/authMiddleware";
+import { requireEditorPermission } from "../middlewares/editorMiddleware";
 
 const router = Router();
 
@@ -127,7 +128,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.post('/', authenticateJWT, IssueController.create);
+router.post('/', authenticateJWT, requireEditorPermission, IssueController.create);
 
 /**
  * @swagger

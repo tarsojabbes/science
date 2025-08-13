@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { IssueService } from '../services/issueService';
+import { JournalEditorService } from '../services/journalEditorService';
 import { IssueFilters, PaginationQueryIssue } from '../types/pagination.types';
 
 const service = new IssueService();
+const journalEditorService = new JournalEditorService();
 
 const parsePaginationOptions = (query: PaginationQueryIssue) => {
   const page = Math.max(1, parseInt(query.page || '1', 10));
@@ -53,6 +55,26 @@ const parseFilters = (query: PaginationQueryIssue): IssueFilters => {
 export const IssueController = {
   async create(req: Request, res: Response) {
     try {
+      const { journalId } = req.body;
+      const userId = (req as any).user?.id; // Assuming user ID is available from auth middleware
+
+      if (!journalId) {
+        res.status(400).json({ error: 'Journal ID is required' });
+        return;
+      }
+
+      if (!userId) {
+        res.status(401).json({ error: 'User authentication required' });
+        return;
+      }
+
+      // Check if user is an editor of the journal
+      const isEditor = await journalEditorService.isUserEditorOfJournal(userId, journalId);
+      if (!isEditor) {
+        res.status(403).json({ error: 'Only editors can create issues for this journal' });
+        return;
+      }
+
       const issue = await service.createIssue(req.body);
       res.status(201).json(issue);
     } catch (err: any) {
@@ -84,6 +106,26 @@ export const IssueController = {
 
   async update(req: Request, res: Response) {
     try {
+      const { journalId } = req.body;
+      const userId = (req as any).user?.id; // Assuming user ID is available from auth middleware
+
+      if (!journalId) {
+        res.status(400).json({ error: 'Journal ID is required' });
+        return;
+      }
+
+      if (!userId) {
+        res.status(401).json({ error: 'User authentication required' });
+        return;
+      }
+
+      // Check if user is an editor of the journal
+      const isEditor = await journalEditorService.isUserEditorOfJournal(userId, journalId);
+      if (!isEditor) {
+        res.status(403).json({ error: 'Only editors can create issues for this journal' });
+        return;
+      }
+      
       const issue = await service.updateIssue(Number(req.params.id), req.body);
       if (!issue) {
         res.status(404).json({ message: 'Issue not found' });

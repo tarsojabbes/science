@@ -19,7 +19,29 @@ export class IssueRepository {
     });
 
     if (data.paperIds && data.paperIds.length > 0) {
-      const papers = await Paper.findAll({ where: { id: data.paperIds } });
+      const papers = await Paper.findAll({
+        where: { id: data.paperIds },
+        attributes: ['id', 'journalId']
+      });
+
+      const invalidPapers = papers.filter(paper => paper.journalId !== data.journalId);
+      if (invalidPapers.length > 0) {
+        const invalidPaperIds = invalidPapers.map(p => p.id);
+        throw new Error(`Papers with IDs ${invalidPaperIds.join(', ')} do not belong to journal ${data.journalId}`);
+      }
+    }
+
+    if (data.paperIds && data.paperIds.length > 0) {
+
+      await Paper.update(
+        { publishedDate: new Date() },
+        { where: { id: data.paperIds } }
+      );
+
+      const papers: Paper[] = await Paper.findAll({ 
+        where: { id: data.paperIds } 
+      });
+      
       await issue.setPapers(papers);
     }
 
