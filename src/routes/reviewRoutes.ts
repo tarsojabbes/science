@@ -19,12 +19,17 @@ const reviewController = new ReviewController();
  *         id:
  *           type: integer
  *           example: 1
+ *         requestDate:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-07-17T12:00:00Z"
+ *         status:
+ *           type: string
+ *           enum: [pending, in_progress, completed, cancelled]
+ *           example: pending
  *         paperId:
  *           type: integer
  *           example: 10
- *         approved:
- *           type: boolean
- *           example: false
  *         requesterId:
  *           type: integer
  *           example: 5
@@ -34,37 +39,49 @@ const reviewController = new ReviewController();
  *         secondReviewerId:
  *           type: integer
  *           example: 8
- *         requestDate:
+ *         assignedDate:
  *           type: string
  *           format: date-time
- *           example: "2025-07-17T12:00:00Z"
- *         peerReviewResults:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/ReviewResult'
+ *           nullable: true
+ *         completedDate:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         finalDecision:
+ *           type: string
+ *           enum: [approved, rejected, needs_revision]
+ *           nullable: true
+ *         editorNotes:
+ *           type: string
+ *           nullable: true
  *     ReviewResult:
  *       type: object
  *       properties:
  *         id:
  *           type: integer
  *           example: 100
- *         firstReviewerNote:
- *           type: string
- *           example: "Detailed review from the first reviewer"
- *         secondReviewerNote:
- *           type: string
- *           example: "Detailed review from the second reviewer"
  *         resultDate:
  *           type: string
  *           format: date-time
- *           example: "2025-07-20T15:00:00Z"
- *         approval:
+ *         reviewerId:
+ *           type: integer
+ *         reviewId:
+ *           type: integer
+ *         recommendation:
+ *           type: string
+ *           enum: [approve, reject, major_revision, minor_revision, not_reviewed]
+ *         comments:
+ *           type: string
+ *         overallScore:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 5
+ *         isSubmitted:
  *           type: boolean
- *           example: true
  * 
- * /reviews:
+ * /reviews/request:
  *   post:
- *     summary: Create a new review request for an paper
+ *     summary: Create a new review request for a paper
  *     tags: [Reviews]
  *     requestBody:
  *       required: true
@@ -74,22 +91,10 @@ const reviewController = new ReviewController();
  *             type: object
  *             required:
  *               - paperId
- *               - requesterId
- *               - firstReviewerId
- *               - secondReviewerId
  *             properties:
  *               paperId:
  *                 type: integer
  *                 example: 10
- *               requesterId:
- *                 type: integer
- *                 example: 5
- *               firstReviewerId:
- *                 type: integer
- *                 example: 7
- *               secondReviewerId:
- *                 type: integer
- *                 example: 8
  *     responses:
  *       201:
  *         description: Review successfully created
@@ -110,6 +115,97 @@ const reviewController = new ReviewController();
  */
 // Request a review for a paper
 router.post('/request', authenticateJWT, reviewController.requestReview.bind(reviewController));
+
+/**
+ * @swagger
+ * /reviews/my-reviews:
+ *   get:
+ *     summary: Get all review requests for the authenticated reviewer
+ *     tags: [Reviews]
+ *     responses:
+ *       200:
+ *         description: A list of all review requests for the reviewer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Review'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+// Get reviews by reviewer (MUST come before /:id route)
+router.get('/my-reviews', authenticateJWT, reviewController.getReviewsByReviewer.bind(reviewController));
+
+/**
+ * @swagger
+ * /reviews/pending:
+ *   get:
+ *     summary: Get pending review requests for the authenticated reviewer
+ *     tags: [Reviews]
+ *     responses:
+ *       200:
+ *         description: A list of pending review requests for the reviewer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Review'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+// Get pending reviews for reviewer (MUST come before /:id route)
+router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(reviewController));
+
+/**
+ * @swagger
+ * /reviews/paper/{paperId}:
+ *   get:
+ *     summary: Get all review requests from a paper
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: paperId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Paper Id
+ *     responses:
+ *       200:
+ *         description: List of review requests for the paper
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Review'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+// Get reviews by paper (MUST come before /:id route)
+router.get('/paper/:paperId', authenticateJWT, reviewController.getReviewsByPaper.bind(reviewController));
 
 /**
  * @swagger
@@ -153,31 +249,56 @@ router.post('/request', authenticateJWT, reviewController.requestReview.bind(rev
 // Get review by ID
 router.get('/:id', authenticateJWT, reviewController.getReviewById.bind(reviewController));
 
-
 /**
  * @swagger
- * /reviews/paper/{paperId}:
- *   get:
- *     summary: Get all review requests from an paper
+ * /reviews/{reviewId}/submit:
+ *   post:
+ *     summary: Submit a review result for a specific review
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
- *         name: paperId
+ *         name: reviewId
  *         schema:
  *           type: integer
  *         required: true
- *         description: Paper Id
+ *         description: Review Id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - recommendation
+ *               - comments
+ *               - overallScore
+ *             properties:
+ *               recommendation:
+ *                 type: string
+ *                 enum: [approve, reject, major_revision, minor_revision]
+ *                 example: "approve"
+ *               comments:
+ *                 type: string
+ *                 example: "This is a well-written paper with solid methodology."
+ *               overallScore:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
  *     responses:
  *       200:
- *         description: List of review requests for the paper
+ *         description: Review result submitted successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Review'
- *       500:
- *         description: Server error
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 reviewResult:
+ *                   type: object
+ *       400:
+ *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
@@ -186,45 +307,14 @@ router.get('/:id', authenticateJWT, reviewController.getReviewById.bind(reviewCo
  *                 error:
  *                   type: string
  */
-// Get reviews by paper
-router.get('/paper/:paperId', authenticateJWT, reviewController.getReviewsByPaper.bind(reviewController));
+// Submit review result
+router.post('/:reviewId/submit', authenticateJWT, reviewController.submitReviewResult.bind(reviewController));
 
 /**
  * @swagger
- * /reviews:
- *   get:
- *     summary: Get all review requests
- *     tags: [Reviews]
- *     responses:
- *       200:
- *         description: A list of all review requests
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Review'
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- */
-// Get reviews by reviewer
-router.get('/my-reviews', authenticateJWT, reviewController.getReviewsByReviewer.bind(reviewController));
-
-// Get pending reviews for reviewer
-router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(reviewController));
-
-/**
- * @swagger
- * /reviews/{id}:
+ * /reviews/{id}/status:
  *   put:
- *     summary: Update a review by its id
+ *     summary: Update a review status by its id
  *     tags: [Reviews]
  *     parameters:
  *       - in: path
@@ -239,28 +329,19 @@ router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - status
  *             properties:
- *               paperId:
- *                 type: integer
- *                 example: 10
- *               approved:
- *                 type: boolean
- *                 example: true
- *               firstReviewerId:
- *                 type: integer
- *                 example: 7
- *               secondReviewerId:
- *                 type: integer
- *                 example: 8
+ *               status:
+ *                 type: string
+ *                 enum: [pending, in_progress, completed, cancelled]
+ *                 example: "completed"
+ *               editorNotes:
+ *                 type: string
+ *                 example: "Review completed successfully"
  *     responses:
  *       200:
- *         description: Review successfully updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Review'
- *       404:
- *         description: Review not found
+ *         description: Review status updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -268,8 +349,10 @@ router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(
  *               properties:
  *                 message:
  *                   type: string
- *       500:
- *         description: Server error
+ *                 review:
+ *                   type: object
+ *       400:
+ *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
@@ -278,9 +361,6 @@ router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(
  *                 error:
  *                   type: string
  */
-// Submit review result
-router.post('/:reviewId/submit', authenticateJWT, reviewController.submitReviewResult.bind(reviewController));
-
 // Update review status (for editors)
 router.put('/:id/status', authenticateJWT, reviewController.updateReviewStatus.bind(reviewController));
 

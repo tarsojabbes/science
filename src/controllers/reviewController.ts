@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ReviewService } from '../services/reviewService';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 export class ReviewController {
   private reviewService: ReviewService;
@@ -8,9 +9,10 @@ export class ReviewController {
     this.reviewService = new ReviewService();
   }
 
-  async requestReview(req: Request, res: Response): Promise<void> {
+  async requestReview(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { paperId, requesterId } = req.body;
+      const { paperId } = req.body;
+      const requesterId = req.user?.id;
 
       if (!paperId) {
         res.status(400).json({ error: 'Paper ID is required' });
@@ -38,13 +40,19 @@ export class ReviewController {
     }
   }
 
-  async submitReviewResult(req: Request, res: Response): Promise<void> {
+  async submitReviewResult(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { reviewId} = req.params;
-      const { recommendation, comments, overallScore, reviewerId } = req.body;
+      const { reviewId } = req.params;
+      const { recommendation, comments, overallScore } = req.body;
+      const reviewerId = req.user?.id;
 
-      if (!reviewId || !reviewerId) {
-        res.status(400).json({ error: 'Review ID and user authentication required' });
+      if (!reviewId) {
+        res.status(400).json({ error: 'Review ID is required' });
+        return;
+      }
+
+      if (!reviewerId) {
+        res.status(401).json({ error: 'User authentication required' });
         return;
       }
 
@@ -98,9 +106,9 @@ export class ReviewController {
     }
   }
 
-  async getReviewsByReviewer(req: Request, res: Response): Promise<void> {
+  async getReviewsByReviewer(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const {reviewerId} = req.body;
+      const reviewerId = req.user?.id;
       if (!reviewerId) {
         res.status(401).json({ error: 'User authentication required' });
         return;
@@ -113,10 +121,11 @@ export class ReviewController {
     }
   }
 
-  async updateReviewStatus(req: Request, res: Response): Promise<void> {
+  async updateReviewStatus(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { status, editorNotes, userId } = req.body;
+      const { status, editorNotes } = req.body;
+      const userId = req.user?.id;
 
       if (!userId) {
         res.status(401).json({ error: 'User authentication required' });
@@ -142,9 +151,9 @@ export class ReviewController {
     }
   }
 
-  async getPendingReviews(req: Request, res: Response): Promise<void> {
+  async getPendingReviews(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const {reviewerId} = req.body;
+      const reviewerId = req.user?.id;
       if (!reviewerId) {
         res.status(401).json({ error: 'User authentication required' });
         return;

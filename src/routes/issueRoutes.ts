@@ -238,6 +238,55 @@ router.put('/:id', authenticateJWT, IssueController.update);
  */
 router.delete('/:id', authenticateJWT, IssueController.delete);
 
+/**
+ * @swagger
+ * /issues:
+ *   get:
+ *     tags:
+ *       - Issues
+ *     summary: List issues with pagination and optional filters
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, publishedDate, volume, journalId, number]
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: journalId
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: publishedDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: volume
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: number
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Paginated list of issues
+ *       500:
+ *         description: Server error
+ */
 router.get('/', authenticateJWT, IssueController.listWithPaginationAndFilter);
 
 export default router;

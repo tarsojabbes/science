@@ -83,6 +83,16 @@ export class ReviewService {
     comments: string;
     overallScore: number;
   }): Promise<ReviewResult> {
+    // First, verify the review exists and the user is actually assigned as a reviewer
+    const review = await Review.findByPk(reviewId);
+    if (!review) {
+      throw new Error('Review not found');
+    }
+
+    if (review.firstReviewerId !== reviewerId && review.secondReviewerId !== reviewerId) {
+      throw new Error('User is not assigned as a reviewer for this review');
+    }
+
     // Find the review result for this reviewer
     const reviewResult = await ReviewResult.findOne({
       where: {
@@ -92,7 +102,29 @@ export class ReviewService {
     });
 
     if (!reviewResult) {
-      throw new Error('Review result not found for this reviewer');
+      // If no review result exists, create one (this shouldn't happen but provides a fallback)
+      console.warn(`Review result not found for review ${reviewId} and reviewer ${reviewerId}, creating one...`);
+      
+      const newReviewResult = await ReviewResult.create({
+        reviewId,
+        reviewerId,
+        resultDate: new Date(),
+        recommendation: reviewData.recommendation,
+        comments: reviewData.comments,
+        overallScore: reviewData.overallScore,
+        isSubmitted: true
+      });
+      
+      // Check if both reviewers have submitted their results
+      const allResults = await ReviewResult.findAll({
+        where: { reviewId }
+      });
+
+      if (allResults.every(result => result.isSubmitted)) {
+        await this.completeReview(reviewId);
+      }
+
+      return newReviewResult;
     }
 
     if (reviewResult.isSubmitted) {
@@ -246,7 +278,8 @@ export class ReviewService {
         {
           model: ReviewResult,
           as: 'results',
-          where: { reviewerId }
+          where: { reviewerId },
+          required: false // Make this a LEFT JOIN to avoid filtering out reviews without results
         },
         {
           model: Paper,

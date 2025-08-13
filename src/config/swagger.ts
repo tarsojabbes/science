@@ -10,6 +10,16 @@ const options: swaggerJsdoc.Options = {
       version: '1.0.0',
       description: 'Documentation for an API to submit and review papers on cientific journals',
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [{ bearerAuth: [] }],
     servers: [
       {
         url: 'http://localhost:3000',

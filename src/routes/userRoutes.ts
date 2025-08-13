@@ -95,6 +95,7 @@ const router = Router();
  *       - Users
  *     summary: Create a new user
  *     description: Adds a new user to the system.
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -221,6 +222,44 @@ router.delete("/:id", authenticateJWT, UserController.delete);
  */
 router.put("/:id", authenticateJWT, UserController.update);
 
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Authenticate user and obtain JWT
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Invalid credentials
+ */
 router.post("/login", UserController.login)
 
 export default router;

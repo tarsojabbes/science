@@ -262,6 +262,46 @@ router.put('/:id', authenticateJWT, JournalController.update);
  */
 router.delete('/:id', authenticateJWT, JournalController.delete);
 
+/**
+ * @swagger
+ * /journals:
+ *   get:
+ *     tags:
+ *       - Journals
+ *     summary: List journals with pagination and optional filters
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, name, issn]
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: issn
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Paginated list of journals
+ *       500:
+ *         description: Server error
+ */
 router.get('/', authenticateJWT, JournalController.listWithPaginationAndFilter);
 
 export default router;

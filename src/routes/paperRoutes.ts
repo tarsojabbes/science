@@ -20,6 +20,9 @@ const router = Router();
  *              type: string
  *            url:
  *              type: string
+ *            status:
+ *              type: string
+ *              enum: [submitted, under_review, approved, rejected, published]
  *            submissionDate:
  *              type: string
  *              format: date
@@ -99,6 +102,10 @@ const router = Router();
  *     responses:
  *       201:
  *         description: Paper created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paper'
  *       500:
  *         description: Server error
  */
@@ -106,9 +113,9 @@ router.post("/", authenticateJWT, PaperController.create);
 
 /**
  * @swagger
- * /papers:
+ * /papers-deprecated:
  *   get:
- *     summary: Retrieve a list of all papers
+ *     summary: Retrieve a list of all papers (deprecated)
  *     tags: [Papers]
  *     responses:
  *       200:
@@ -134,6 +141,10 @@ router.post("/", authenticateJWT, PaperController.create);
  *     responses:
  *       200:
  *         description: Paper found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paper'
  *       404:
  *         description: Paper not found
  *       500:
@@ -230,6 +241,10 @@ router.put("/:id", authenticateJWT, PaperController.update);
  *     responses:
  *       200:
  *         description: Researcher added to paper
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paper'
  *       404:
  *         description: Paper or researcher not found
  *       500:
@@ -268,22 +283,59 @@ router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperContro
 
 /**
  * @swagger
- * /papers/researchers/{researcherId}:
+ * /papers:
  *   get:
- *     summary: Get all papers by a specific researcher
+ *     summary: List papers with pagination and optional filters
  *     tags: [Papers]
  *     parameters:
- *       - in: path
- *         name: researcherId
- *         required: true
+ *       - in: query
+ *         name: page
  *         schema:
  *           type: integer
- *         description: Researcher ID
+ *           minimum: 1
+ *         description: Page number (default 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Items per page (default 10)
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, name, publishedDate, submissionDate]
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: journalId
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: issueId
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: publishedAfter
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: publishedBefore
+ *         schema:
+ *           type: string
+ *           format: date
  *     responses:
  *       200:
- *         description: List of papers by the researcher
- *       404:
- *         description: Researcher not found
+ *         description: Paginated list of papers
  *       500:
  *         description: Server error
  */
@@ -291,8 +343,80 @@ router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperContro
 
 router.get('/', authenticateJWT, PaperController.listWithPagination);
 
+/**
+ * @swagger
+ * /papers/researchers/{researcherId}:
+ *   get:
+ *     summary: List papers by researcher with pagination
+ *     tags: [Papers]
+ *     parameters:
+ *       - in: path
+ *         name: researcherId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, name, publishedDate, submissionDate]
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *     responses:
+ *       200:
+ *         description: Paginated list of papers
+ *       500:
+ *         description: Server error
+ */
 router.get('/researchers/:researcherId', authenticateJWT, PaperController.getPaperByResearcherPaginated);
 
+/**
+ * @swagger
+ * /papers/journal/{journalId}:
+ *   get:
+ *     summary: List papers by journal with pagination
+ *     tags: [Papers]
+ *     parameters:
+ *       - in: path
+ *         name: journalId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, name, publishedDate, submissionDate]
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *     responses:
+ *       200:
+ *         description: Paginated list of papers
+ *       500:
+ *         description: Server error
+ */
 router.get('/journal/:journalId', authenticateJWT, PaperController.getPapersByJournalPaginated);
 
 export default router;
