@@ -10,18 +10,25 @@ export class PaperRepository {
     submissionDate?: Date;
     url?: string;
     researcherIds?: number[];
+    journalId?: number;
+    issueId?: number;
   }) {
-    const { researcherIds, ...paperData } = data;
+    const { researcherIds, name, ...paperData } = data;
     
-    const paper = await Paper.create(paperData);
-    
-    if (researcherIds && researcherIds.length > 0) {
-      const researchers = await User.findAll({
-        where: { id: researcherIds }
-      });
-      await paper.setResearchers(researchers);
+    if (!name || name.trim() === '') {
+      throw new Error('Paper name is required');
     }
-    
+    if (!researcherIds || researcherIds.length === 0) {
+      throw new Error('At least one researcher is required');
+    }
+    const researchers = await User.findAll({
+      where: { id: researcherIds }
+    });
+    if (researchers.length !== researcherIds.length) {
+      throw new Error('One or more researchers do not exist');
+    }
+    const paper = await Paper.create({ name, ...paperData });
+    await paper.setResearchers(researchers);
     return await Paper.findByPk(paper.id, {
       include: [{
         model: User,
@@ -39,29 +46,42 @@ export class PaperRepository {
     url?: string;
     researcherIds?: number[];
     status?: string;
+    journalId?: number;
+    issueId?: number;
   }): Promise<Paper | null> {
-    const { researcherIds, ...paperData } = data;
+    const { researcherIds, name, ...paperData } = data;
     
-    const [rowsUpdated] = await Paper.update(paperData, {
-      where: { id }
-    });
-
-    if (rowsUpdated === 0) return null;
-
-    const paper = await Paper.findByPk(id);
-    if (!paper) return null;
-
-    if (researcherIds !== undefined) {
-      if (researcherIds.length > 0) {
-        const researchers = await User.findAll({
-          where: { id: researcherIds }
-        });
-        await paper.setResearchers(researchers);
-      } else {
-        await paper.setResearchers([]);
-      }
+    if (name !== undefined && name.trim() === '') {
+      throw new Error('Paper name is required');
     }
 
+    const [rowsUpdated] = await Paper.update(
+      name !== undefined ? { ...paperData, name } : paperData,
+      { where: { id } }
+    );
+    
+    const paper = await Paper.findByPk(id);
+    
+    if (!paper) return null;
+    
+    if (researcherIds !== undefined) {
+      if (!Array.isArray(researcherIds) || researcherIds.length === 0) {
+        throw new Error('At least one researcher is required');
+      }
+    
+      const researchers = await User.findAll({
+        where: { id: researcherIds }
+      });
+    
+      const foundIds = researchers.map(r => r.id);
+      const notFound = researcherIds.filter(id => !foundIds.includes(id));
+      if (notFound.length > 0) {
+        throw new Error(`Researchers not found: ${notFound.join(', ')}`);
+      }
+    
+      await paper.setResearchers(researchers);
+    }
+    
     return await Paper.findByPk(id, {
       include: [{
         model: User,

@@ -23,7 +23,9 @@ export class UserService {
     }
 
     async updateUser(id: number, data: User) {
-    return await this.userRepository.updateUser(id, data);
+        const updateUser = await this.userRepository.updateUser(id, data);
+        if (!updateUser) return null;
+        return updateUser;
     }
 
     async createUserCrypt(userData: any) {
@@ -63,6 +65,8 @@ export class UserService {
     }
 
     async deleteUser(id: number) {
-      return await this.userRepository.deleteUser(id);
+      const deletedUser = await this.userRepository.deleteUser(id);
+      if (!deletedUser) return null;
+      return deletedUser;
     }
 }

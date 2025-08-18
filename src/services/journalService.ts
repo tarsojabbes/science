@@ -6,6 +6,12 @@ export class JournalService {
   constructor(private repo = new JournalRepository()) {}
 
   async createJournal(data: { name: string; issn: string }) {
+    if (!data.name || data.name.trim() === '') {
+      throw new Error('Name is required');
+    }
+    if (!data.issn || data.issn.trim() === '') {
+      throw new Error('ISSN is required');
+    }
     return await this.repo.createJournal(data);
   }
 

@@ -17,7 +17,21 @@ export class PaperService {
     submissionDate?: Date;
     url?: string;
     researcherIds?: number[];
+    journalId?: number;
+    issueId?: number;
   }) {
+    if (!data.name) {
+      throw new Error('Name is required');
+    }
+    if (!data.journalId) {
+      throw new Error('Journal ID is required');
+    }
+    if (!data.researcherIds) {
+      throw new Error('Researcher IDs are required');
+    }
+    if (!data.researcherIds.length) {
+      throw new Error('At least one researcher is required');
+    }
     return await this.repo.createPaper(data);
   }
 
@@ -27,7 +41,17 @@ export class PaperService {
     submissionDate?: Date;
     url?: string;
     researcherIds?: number[];
+    status?: string;
+    journalId?: number;
+    issueId?: number;
   }) {
+    if (data.name == '') {
+      throw new Error('Name is required');
+    }
+
+    if (!data.researcherIds?.length) {
+      throw new Error('At least one researcher is required');
+    }
     return await this.repo.updatePaper(id, data);
   }
 

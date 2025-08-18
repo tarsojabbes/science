@@ -83,6 +83,14 @@ export class ReviewService {
     comments: string;
     overallScore: number;
   }): Promise<ReviewResult> {
+    // Validação manual dos campos
+    const VALID_RECOMMENDATIONS = ['approve', 'reject', 'major_revision', 'minor_revision', 'not_reviewed'];
+    if (!VALID_RECOMMENDATIONS.includes(reviewData.recommendation)) {
+      throw new Error('Invalid recommendation value');
+    }
+    if (typeof reviewData.overallScore !== 'number' || reviewData.overallScore < 1 || reviewData.overallScore > 5) {
+      throw new Error('overallScore must be between 1 and 5');
+    }
     // First, verify the review exists and the user is actually assigned as a reviewer
     const review = await Review.findByPk(reviewId);
     if (!review) {
@@ -279,7 +287,7 @@ export class ReviewService {
           model: ReviewResult,
           as: 'results',
           where: { reviewerId },
-          required: false // Make this a LEFT JOIN to avoid filtering out reviews without results
+          required: false
         },
         {
           model: Paper,

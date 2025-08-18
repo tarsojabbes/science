@@ -18,17 +18,16 @@ export class IssueService {
       for (const paperId of data.paperIds) {
         const paper = await this.paperRepo.findById(paperId);
         if (!paper) {
-          throw new Error(`Paper with ID ${paperId} not found`);
+          throw new Error('Cannot associate non-existent paper to issue');
         }
         if (paper.status !== 'approved') {
-          throw new Error(`Paper with ID ${paperId} is not approved (status: ${paper.status})`);
+          throw new Error('Paper must be approved to be included in an issue');
         }
         if (paper.journalId !== data.journalId) {
-          throw new Error(`Paper with ID ${paperId} does not belong to journal ${data.journalId}`);
+          throw new Error('Paper can only be published in the journal to which it was submitted');
         }
       }
     }
-
     return await this.repo.createIssue(data);
   }
 
@@ -51,22 +50,26 @@ export class IssueService {
       for (const paperId of data.paperIds) {
         const paper = await this.paperRepo.findById(paperId);
         if (!paper) {
-          throw new Error(`Paper with ID ${paperId} not found`);
+          throw new Error('Cannot associate non-existent paper to issue');
         }
         if (paper.status !== 'approved') {
-          throw new Error(`Paper with ID ${paperId} is not approved (status: ${paper.status})`);
+          throw new Error('Paper must be approved to be included in an issue');
         }
         if (paper.journalId !== data.journalId) {
-          throw new Error(`Paper with ID ${paperId} does not belong to journal ${data.journalId}`);
+          throw new Error('Paper can only be published in the journal to which it was submitted');
         }
       }
     }
-
     return await this.repo.updateIssue(id, data);
   }
 
   async deleteIssue(id: number) {
-    return await this.repo.deleteIssue(id);
+    const issue = await this.repo.getIssueById(id);
+    if (!issue) {
+      throw new Error('Issue does not exist');
+    }
+    await this.repo.deleteIssue(id);
+    return true;
   }
 
   async getAllIssuesWithPaginationAndFilter(
@@ -74,9 +77,7 @@ export class IssueService {
     filters: IssueFilters = {}
   ): Promise<PaginationResponse<Issue>> {
     const result = await this.repo.getAllIssuesWithPaginationAndFilter(options, filters);
-    
     const totalPages = Math.ceil(result.count / options.limit);
-    
     return {
       success: true,
       data: result.rows,
