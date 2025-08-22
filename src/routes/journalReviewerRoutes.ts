@@ -34,7 +34,7 @@ const journalReviewerController = new JournalReviewerController();
  *       400:
  *         description: Bad request
  */
-// Add reviewer to journal
+
 router.post('/journals/reviewers', authenticateJWT, journalReviewerController.addReviewerToJournal.bind(journalReviewerController));
 
 /**
@@ -61,7 +61,7 @@ router.post('/journals/reviewers', authenticateJWT, journalReviewerController.ad
  *       400:
  *         description: Bad request
  */
-// Remove reviewer from journal
+
 router.delete('/journals/:journalId/reviewers/:userId', authenticateJWT, journalReviewerController.removeReviewerFromJournal.bind(journalReviewerController));
 
 /**
@@ -81,7 +81,7 @@ router.delete('/journals/:journalId/reviewers/:userId', authenticateJWT, journal
  *       200:
  *         description: List of reviewers
  */
-// Get all reviewers of a journal
+
 router.get('/journals/:journalId/reviewers', authenticateJWT, journalReviewerController.getJournalReviewers.bind(journalReviewerController));
 
 /**
@@ -101,7 +101,7 @@ router.get('/journals/:journalId/reviewers', authenticateJWT, journalReviewerCon
  *       200:
  *         description: List of journals
  */
-// Get all journals where a user is a reviewer
+
 router.get('/users/:userId/reviewer-journals', authenticateJWT, journalReviewerController.getUserReviewerJournals.bind(journalReviewerController));
 
 /**
@@ -140,7 +140,7 @@ router.get('/users/:userId/reviewer-journals', authenticateJWT, journalReviewerC
  *       400:
  *         description: Bad request
  */
-// Update reviewer expertise
+
 router.put('/journals/:journalId/reviewers/:userId/expertise', authenticateJWT, journalReviewerController.updateReviewerExpertise.bind(journalReviewerController));
 
 /**
@@ -165,7 +165,7 @@ router.put('/journals/:journalId/reviewers/:userId/expertise', authenticateJWT, 
  *       200:
  *         description: Reviewer deactivated
  */
-// Deactivate reviewer
+
 router.put('/journals/:journalId/reviewers/:userId/deactivate', authenticateJWT, journalReviewerController.deactivateReviewer.bind(journalReviewerController));
 
 /**
@@ -190,7 +190,7 @@ router.put('/journals/:journalId/reviewers/:userId/deactivate', authenticateJWT,
  *       200:
  *         description: Reviewer activated
  */
-// Activate reviewer
+
 router.put('/journals/:journalId/reviewers/:userId/activate', authenticateJWT, journalReviewerController.activateReviewer.bind(journalReviewerController));
 
 /**
@@ -215,7 +215,7 @@ router.put('/journals/:journalId/reviewers/:userId/activate', authenticateJWT, j
  *       200:
  *         description: Permission and expertise
  */
-// Check if user is reviewer of journal
+
 router.get('/journals/:journalId/reviewers/:userId/permission', authenticateJWT, journalReviewerController.checkReviewerPermission.bind(journalReviewerController));
 
 export default router; 

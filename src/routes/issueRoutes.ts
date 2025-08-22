@@ -130,27 +130,6 @@ const router = Router();
  */
 router.post('/', authenticateJWT, requireEditorPermission, IssueController.create);
 
-/**
- * @swagger
- * /issues:
- *   get:
- *     tags:
- *       - Issues
- *     summary: Get all issues
- *     description: Retrieves a list of all issues in the system.
- *     responses:
- *       200:
- *         description: List of issues
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Issue'
- *       500:
- *         description: Server error
- */
-//router.get('/', IssueController.getAll); // DEPRECATED
 
 /**
  * @swagger

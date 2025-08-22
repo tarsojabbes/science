@@ -8,7 +8,7 @@ import { ReviewResult } from '../models/ReviewResult';
 import { JournalReviewer } from '../models/JournalReviewer';
 import { ReviewService } from '../services/reviewService';
 
-// Utilidades para facilitar criação de dados
+
 async function createUser(userData: any) {
   return await User.create(userData);
 }
@@ -22,7 +22,7 @@ async function createPaper(paperData: any) {
   return await Paper.create(paperData);
 }
 
-// Dados base
+
 const validUserData = {
   name: 'Jane Doe',
   email: 'jane@example.com',
@@ -68,7 +68,7 @@ describe('ReviewService (teste de integração)', () => {
       storage: ':memory:',
       logging: false
     });
-    // Inicialização dos models
+
     User.init({
       name: { type: DataType.STRING, allowNull: false },
       email: { type: DataType.STRING, allowNull: false, unique: true },
@@ -125,10 +125,8 @@ describe('ReviewService (teste de integração)', () => {
       isActive: { type: DataType.BOOLEAN, allowNull: false, defaultValue: true }
     }, { sequelize, modelName: 'JournalReviewer' });
 
-    // Associações
     User.belongsToMany(Journal, { through: JournalReviewer, as: 'reviewerJournals', foreignKey: 'userId', otherKey: 'journalId' });
     Journal.belongsToMany(User, { through: JournalReviewer, as: 'reviewers', foreignKey: 'journalId', otherKey: 'userId' });
-    // Associações diretas para JournalReviewer
     JournalReviewer.belongsTo(User, { foreignKey: 'userId', as: 'user' });
     JournalReviewer.belongsTo(Journal, { foreignKey: 'journalId', as: 'journal' });
     User.hasMany(JournalReviewer, { foreignKey: 'userId', as: 'journalReviewerLinks' });
@@ -149,7 +147,7 @@ describe('ReviewService (teste de integração)', () => {
 
     await sequelize.sync({ force: true });
     reviewService = new ReviewService();
-    // Criação de dados base
+
     author = await createUser(validUserData);
     reviewer1 = await createUser(validUserData2);
     reviewer2 = await createUser(validUserData3);
@@ -157,9 +155,9 @@ describe('ReviewService (teste de integração)', () => {
     journal = await createJournal(validJournalData);
     issue = await createIssue({ ...validIssueData, journalId: journal.id });
     paper = await createPaper({ name: 'Artigo Teste', url: 'http://example.com', journalId: journal.id, issueId: issue.id, status: 'submitted' });
-    // Associa autores ao artigo
+
     await paper.setResearchers([author]);
-    // Associa revisores à revista
+
     await JournalReviewer.create({ journalId: journal.id, userId: reviewer1.id, expertise: [], assignedAt: new Date(), isActive: true });
     await JournalReviewer.create({ journalId: journal.id, userId: reviewer2.id, expertise: [], assignedAt: new Date(), isActive: true });
   });
@@ -167,11 +165,13 @@ describe('ReviewService (teste de integração)', () => {
   beforeEach(async () => {
     await Review.destroy({ where: {} });
     await ReviewResult.destroy({ where: {} });
-    await Paper.update({ status: 'submitted' }, { where: {} });
     await JournalReviewer.destroy({ where: {} });
-    // Sempre garanta pelo menos dois revisores ativos para a revista
+
     await JournalReviewer.create({ journalId: journal.id, userId: reviewer1.id, expertise: [], assignedAt: new Date(), isActive: true });
     await JournalReviewer.create({ journalId: journal.id, userId: reviewer2.id, expertise: [], assignedAt: new Date(), isActive: true });
+    
+    paper = await createPaper({ name: 'Artigo Teste', url: 'http://example.com', journalId: journal.id, issueId: issue.id, status: 'submitted' });
+    await paper.setResearchers([author]);
   });
 
   afterAll(async () => {
@@ -191,13 +191,13 @@ describe('ReviewService (teste de integração)', () => {
       await expect(reviewService.requestReview(9999, author.id)).rejects.toThrow('Paper not found');
     });
     it('Caso 3: Autor solicita a revisão informando dados válidos mas a revista tem menos que dois revisores associados', async () => {
-      // Remove todos os revisores
+
       await JournalReviewer.destroy({ where: { journalId: journal.id } });
       await JournalReviewer.create({ journalId: journal.id, userId: reviewer1.id, expertise: [], assignedAt: new Date(), isActive: true });
       await expect(reviewService.requestReview(paper.id, author.id)).rejects.toThrow('Not enough reviewers available');
     });
     it('Caso 4: Autor solicita a revisão com um artigo que já está sendo revisado ou já teve a revisão concluída', async () => {
-      // Muda status do artigo para under_review
+
       await paper.update({ status: 'under_review' });
       await expect(reviewService.requestReview(paper.id, author.id)).rejects.toThrow('Paper must be in submitted status to request review');
     });
@@ -206,7 +206,7 @@ describe('ReviewService (teste de integração)', () => {
   describe('Submissão de resultado de revisão', () => {
     let review: Review;
     beforeEach(async () => {
-      // Garante que há uma revisão criada
+
       review = await reviewService.requestReview(paper.id, author.id);
     });
     it('Caso 1: Revisor submete revisão de artigo com dados válidos', async () => {
@@ -294,7 +294,7 @@ describe('ReviewService (teste de integração)', () => {
         overallScore: 1
       });
       const updatedPaper = await Paper.findByPk(paper.id);
-      expect(updatedPaper!.status).toBe('submitted'); // needs_revision volta para submitted
+      expect(updatedPaper!.status).toBe('submitted');
     });
   });
 });

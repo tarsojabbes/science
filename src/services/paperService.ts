@@ -45,11 +45,11 @@ export class PaperService {
     journalId?: number;
     issueId?: number;
   }) {
-    if (data.name == '') {
+    if (data.name !== undefined && data.name.trim() === '') {
       throw new Error('Name is required');
     }
 
-    if (!data.researcherIds?.length) {
+    if (data.researcherIds !== undefined && (!Array.isArray(data.researcherIds) || data.researcherIds.length === 0)) {
       throw new Error('At least one researcher is required');
     }
     return await this.repo.updatePaper(id, data);

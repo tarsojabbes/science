@@ -14,7 +14,7 @@ export class JournalEditorService {
   }
 
   async addEditorToJournal(journalId: number, userId: number): Promise<void> {
-    // Verify that both journal and user exist
+
     const journal = await this.journalRepository.getJournalById(journalId);
     if (!journal) {
       throw new Error('Journal not found');
@@ -25,7 +25,7 @@ export class JournalEditorService {
       throw new Error('User not found');
     }
 
-    // Check if user is already an editor of this journal
+
     const isAlreadyEditor = await this.journalEditorRepository.isUserEditorOfJournal(userId, journalId);
     if (isAlreadyEditor) {
       throw new Error('User is already an editor of this journal');

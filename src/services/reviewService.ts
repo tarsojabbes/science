@@ -1,26 +1,16 @@
 import { Review } from '../models/Review';
 import { ReviewResult } from '../models/ReviewResult';
-import { Paper } from '../models/Paper';
-import { JournalReviewerService } from './journalReviewerService';
 import { PaperRepository } from '../repository/paperRepository';
-import { UserRepository } from '../repository/userRepository';
-import { Op } from 'sequelize';
-import { User } from '../models/User';
+import { JournalReviewerService } from './journalReviewerService';
+import { PaperService } from './paperService';
 
 export class ReviewService {
-  private journalReviewerService: JournalReviewerService;
-  private paperRepository: PaperRepository;
-  private userRepository: UserRepository;
-
-  constructor() {
-    this.journalReviewerService = new JournalReviewerService();
-    this.paperRepository = new PaperRepository();
-    this.userRepository = new UserRepository();
-  }
+  private paperRepository = new PaperRepository();
+  private journalReviewerService = new JournalReviewerService();
+  private paperService = new PaperService();
 
   async requestReview(paperId: number, requesterId: number): Promise<Review> {
     try {
-      // Get the paper and its journal
       const paper = await this.paperRepository.findById(paperId);
       if (!paper) {
         throw new Error('Paper not found');
@@ -30,13 +20,11 @@ export class ReviewService {
         throw new Error('Paper must be in submitted status to request review');
       }
 
-      // Get random reviewers for the journal
       const reviewers = await this.journalReviewerService.getRandomReviewersForJournal(paper.journalId, 2);
       if (reviewers.length < 2) {
         throw new Error(`Not enough reviewers available for journal ID ${paper.journalId}. Found: ${reviewers.length}, Required: 2`);
       }
 
-      // Create the review
       const review = await Review.create({
         requestDate: new Date(),
         status: 'pending',
@@ -47,10 +35,8 @@ export class ReviewService {
         assignedDate: new Date()
       });
 
-      // Update paper status to under_review
-      await this.paperRepository.updatePaper(paperId, { status: 'under_review' });
+      await this.paperService.updatePaper(paperId, { status: 'under_review' });
 
-      // Create review result placeholders for both reviewers
       await ReviewResult.create({
         reviewId: review.id,
         reviewerId: parseInt(reviewers[0].id, 10),
@@ -83,7 +69,6 @@ export class ReviewService {
     comments: string;
     overallScore: number;
   }): Promise<ReviewResult> {
-    // Validação manual dos campos
     const VALID_RECOMMENDATIONS = ['approve', 'reject', 'major_revision', 'minor_revision', 'not_reviewed'];
     if (!VALID_RECOMMENDATIONS.includes(reviewData.recommendation)) {
       throw new Error('Invalid recommendation value');
@@ -91,7 +76,7 @@ export class ReviewService {
     if (typeof reviewData.overallScore !== 'number' || reviewData.overallScore < 1 || reviewData.overallScore > 5) {
       throw new Error('overallScore must be between 1 and 5');
     }
-    // First, verify the review exists and the user is actually assigned as a reviewer
+    
     const review = await Review.findByPk(reviewId);
     if (!review) {
       throw new Error('Review not found');
@@ -101,7 +86,6 @@ export class ReviewService {
       throw new Error('User is not assigned as a reviewer for this review');
     }
 
-    // Find the review result for this reviewer
     const reviewResult = await ReviewResult.findOne({
       where: {
         reviewId,
@@ -110,7 +94,6 @@ export class ReviewService {
     });
 
     if (!reviewResult) {
-      // If no review result exists, create one (this shouldn't happen but provides a fallback)
       console.warn(`Review result not found for review ${reviewId} and reviewer ${reviewerId}, creating one...`);
       
       const newReviewResult = await ReviewResult.create({
@@ -122,195 +105,125 @@ export class ReviewService {
         overallScore: reviewData.overallScore,
         isSubmitted: true
       });
-      
-      // Check if both reviewers have submitted their results
-      const allResults = await ReviewResult.findAll({
-        where: { reviewId }
-      });
 
-      if (allResults.every(result => result.isSubmitted)) {
-        await this.completeReview(reviewId);
-      }
-
+      await this.checkAndUpdateReviewStatus(reviewId);
       return newReviewResult;
     }
 
     if (reviewResult.isSubmitted) {
-      throw new Error('Review result already submitted');
+      throw new Error('Review result has already been submitted');
     }
 
-    // Update the review result
     await reviewResult.update({
-      ...reviewData,
-      resultDate: new Date(),
+      recommendation: reviewData.recommendation,
+      comments: reviewData.comments,
+      overallScore: reviewData.overallScore,
       isSubmitted: true
     });
 
-    // Check if both reviewers have submitted their results
-    const allResults = await ReviewResult.findAll({
-      where: { reviewId }
-    });
-
-    if (allResults.every(result => result.isSubmitted)) {
-      await this.completeReview(reviewId);
-    }
-
+    await this.checkAndUpdateReviewStatus(reviewId);
     return reviewResult;
   }
 
-  private async completeReview(reviewId: number): Promise<void> {
-    const review = await Review.findByPk(reviewId, {
-      include: [{
-        model: ReviewResult,
-        as: 'results'
-      }]
+  private async checkAndUpdateReviewStatus(reviewId: number): Promise<void> {
+    const review = await Review.findByPk(reviewId);
+    if (!review) return;
+
+    const reviewResults = await ReviewResult.findAll({
+      where: { reviewId }
     });
 
-    if (!review) {
-      throw new Error('Review not found');
+    if (reviewResults.length < 2) return;
+
+    const submittedResults = reviewResults.filter(r => r.isSubmitted);
+    if (submittedResults.length < 2) return;
+
+    const recommendations = submittedResults.map(r => r.recommendation);
+    let finalDecision = 'needs_revision';
+    let newStatus = 'under_review';
+
+    if (recommendations.every(r => r === 'approve')) {
+      finalDecision = 'approved';
+      newStatus = 'approved';
+    } else if (recommendations.every(r => r === 'reject')) {
+      finalDecision = 'rejected';
+      newStatus = 'rejected';
+    } else if (recommendations.some(r => r === 'major_revision')) {
+      finalDecision = 'needs_revision';
+      newStatus = 'submitted';
+    } else if (recommendations.some(r => r === 'minor_revision')) {
+      finalDecision = 'needs_revision';
+      newStatus = 'submitted';
+    } else {
+      finalDecision = 'needs_revision';
+      newStatus = 'submitted';
     }
 
-    const results = (review as any).results;
-    
-    // Calculate final decision based on reviewer recommendations
-    const recommendations = results.map((r: any) => r.recommendation);
-    const finalDecision = this.calculateFinalDecision(recommendations);
-
-    // Update review status
     await review.update({
       status: 'completed',
       completedDate: new Date(),
       finalDecision
     });
 
-    // Update paper status based on final decision
-    const paper = await this.paperRepository.findById(review.paperId);
-    if (paper) {
-      let newStatus = 'rejected';
-      if (finalDecision === 'approved') {
-        newStatus = 'approved';
-      } else if (finalDecision === 'needs_revision') {
-        newStatus = 'submitted'; // Back to submitted for revision
-      }
-
-      await this.paperRepository.updatePaper(review.paperId, { status: newStatus });
+    if (newStatus === 'approved') {
+      await this.paperService.updatePaper(review.paperId, { status: 'approved' });
+    } else if (newStatus === 'rejected') {
+      await this.paperService.updatePaper(review.paperId, { status: 'rejected' });
+    } else if (newStatus === 'submitted') {
+      await this.paperService.updatePaper(review.paperId, { status: 'submitted' });
     }
   }
 
-  private calculateFinalDecision(recommendations: string[]): string {
-    const approveCount = recommendations.filter(r => r === 'approve').length;
-    const rejectCount = recommendations.filter(r => r === 'reject').length;
-    const majorRevisionCount = recommendations.filter(r => r === 'major_revision').length;
-    const minorRevisionCount = recommendations.filter(r => r === 'minor_revision').length;
-
-    // If both reviewers approve, approve
-    if (approveCount === 2) {
-      return 'approved';
-    }
-
-    // If both reviewers reject, reject
-    if (rejectCount === 2) {
-      return 'rejected';
-    }
-
-    // If one approves and one rejects, needs revision
-    if (approveCount === 1 && rejectCount === 1) {
-      return 'needs_revision';
-    }
-
-    // If any major revision is requested, needs revision
-    if (majorRevisionCount > 0) {
-      return 'needs_revision';
-    }
-
-    // If both request minor revision, needs revision
-    if (minorRevisionCount === 2) {
-      return 'needs_revision';
-    }
-
-    // Default to needs revision for mixed opinions
-    return 'needs_revision';
+  async getReviewById(id: number): Promise<Review | null> {
+    return await Review.findByPk(id);
   }
 
-  async getReviewById(reviewId: number): Promise<any> {
-    const review = await Review.findByPk(reviewId, {
-      include: [
-        {
-          model: ReviewResult,
-          as: 'results',
-          include: [{
-            model: User,
-            as: 'reviewer'
-          }]
-        },
-        {
-          model: User,
-          as: 'requester'
-        },
-        {
-          model: User,
-          as: 'firstReviewer'
-        },
-        {
-          model: User,
-          as: 'secondReviewer'
-        }
-      ]
-    });
-
-    return review;
+  async getAllReviews(): Promise<Review[]> {
+    return await Review.findAll();
   }
 
   async getReviewsByPaper(paperId: number): Promise<Review[]> {
     return await Review.findAll({
-      where: { paperId },
-      include: [
-        {
-          model: ReviewResult,
-          as: 'results'
-        }
-      ],
-      order: [['requestDate', 'DESC']]
+      where: { paperId }
     });
   }
 
-  async getReviewsByReviewer(reviewerId: number): Promise<any[]> {
-    const reviews = await Review.findAll({
+  async getReviewsByReviewer(reviewerId: number): Promise<Review[]> {
+    return await Review.findAll({
       where: {
-        [Op.or]: [
+        [require('sequelize').Op.or]: [
           { firstReviewerId: reviewerId },
           { secondReviewerId: reviewerId }
         ]
-      },
-      include: [
-        {
-          model: ReviewResult,
-          as: 'results',
-          where: { reviewerId },
-          required: false
-        },
-        {
-          model: Paper,
-          as: 'paper'
-        }
-      ],
-      order: [['requestDate', 'DESC']]
+      }
     });
-
-    return reviews;
   }
 
-  async updateReviewStatus(reviewId: number, status: string, editorNotes?: string): Promise<Review> {
-    const review = await Review.findByPk(reviewId);
-    if (!review) {
-      throw new Error('Review not found');
-    }
-
-    await review.update({
-      status,
-      editorNotes: editorNotes || review.editorNotes
+  async getPendingReviewsForReviewer(reviewerId: number): Promise<Review[]> {
+    return await Review.findAll({
+      where: {
+        status: 'pending',
+        [require('sequelize').Op.or]: [
+          { firstReviewerId: reviewerId },
+          { secondReviewerId: reviewerId }
+        ]
+      }
     });
+  }
 
+  async updateReviewStatus(id: number, status: string): Promise<Review | null> {
+    const review = await Review.findByPk(id);
+    if (!review) return null;
+
+    await review.update({ status });
     return review;
+  }
+
+  async deleteReview(id: number): Promise<boolean> {
+    const review = await Review.findByPk(id);
+    if (!review) return false;
+
+    await review.destroy();
+    return true;
   }
 }

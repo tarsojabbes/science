@@ -24,7 +24,7 @@ export class ReviewResultRepository {
     
     await result.update(data);
     
-    // Return the updated result
+
     return await this.getResultById(id);
   }
 

@@ -13,7 +13,6 @@ export class IssueService {
     journalId: number;
     paperIds: number[];
   }) {
-    // Validate that all papers are approved
     if (data.paperIds && data.paperIds.length > 0) {
       for (const paperId of data.paperIds) {
         const paper = await this.paperRepo.findById(paperId);
@@ -45,7 +44,6 @@ export class IssueService {
     journalId: number;
     paperIds: number[];
   }) {
-    // Validate that all papers are approved
     if (data.paperIds && data.paperIds.length > 0) {
       for (const paperId of data.paperIds) {
         const paper = await this.paperRepo.findById(paperId);

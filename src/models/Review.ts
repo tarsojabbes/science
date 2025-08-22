@@ -4,7 +4,7 @@ import sequelize from '../config/database';
 export class Review extends Model {
   public id!: number;
   public requestDate!: Date;
-  public status!: string; // 'pending', 'in_progress', 'completed', 'cancelled'
+  public status!: string;
   public paperId!: number;
   public requesterId!: number;
   public firstReviewerId!: number;

@@ -69,7 +69,7 @@ describe('Journal integration (real services)', () => {
     Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
     Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
     Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
-    // Associação N:N entre User e Paper (autores/pesquisadores de artigos)
+
     User.belongsToMany(Paper, {
         through: 'PaperResearchers',
         foreignKey: 'userId',
@@ -82,7 +82,7 @@ describe('Journal integration (real services)', () => {
         otherKey: 'userId',
         as: 'researchers'
     });
-    // Associations
+
     Journal.belongsToMany(User, { through: JournalEditor, as: 'editors', foreignKey: 'journalId', otherKey: 'userId' });
     User.belongsToMany(Journal, { through: JournalEditor, as: 'editorJournals', foreignKey: 'userId', otherKey: 'journalId' });
     Journal.belongsToMany(User, { through: JournalReviewer, as: 'reviewers', foreignKey: 'journalId', otherKey: 'userId' });
@@ -152,8 +152,7 @@ describe('Journal integration (real services)', () => {
     });
     it('Case 8: Remove existing editor from non-existent journal', async () => {
       await journalEditorService.addEditorToJournal(journal.id, user.id);
-      // O método removeEditorFromJournal só verifica se o editor existe, não se o journal existe, então não lança erro de journal inexistente
-      // Para simular, tente remover de um journalId que não existe e não tem editor
+      
       await expect(journalEditorService.removeEditorFromJournal(9999, user.id)).rejects.toThrow('User is not an editor of this journal');
     });
   });
@@ -185,7 +184,7 @@ describe('Journal integration (real services)', () => {
     });
     it('Case 8: Remove existing reviewer from non-existent journal', async () => {
       await journalReviewerService.addReviewerToJournal(journal.id, user.id);
-      // O método removeReviewerFromJournal só verifica se o reviewer existe, não se o journal existe, então não lança erro de journal inexistente
+      
       await expect(journalReviewerService.removeReviewerFromJournal(9999, user.id)).rejects.toThrow('User is not a reviewer of this journal');
     });
   });

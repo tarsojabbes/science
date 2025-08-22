@@ -113,20 +113,6 @@ router.post("/", authenticateJWT, PaperController.create);
 
 /**
  * @swagger
- * /papers-deprecated:
- *   get:
- *     summary: Retrieve a list of all papers (deprecated)
- *     tags: [Papers]
- *     responses:
- *       200:
- *         description: A list of papers
- *       500:
- *         description: Server error
- */
-// router.get("/", authenticateJWT, PaperController.list); // DEPRECATED
-
-/**
- * @swagger
  * /papers/{id}:
  *   get:
  *     summary: Get paper details by ID
@@ -281,65 +267,6 @@ router.post("/:paperId/researcher/:researcherId", authenticateJWT, PaperControll
  */
 router.delete("/:paperId/researcher/:researcherId", authenticateJWT, PaperController.removeResearcher);
 
-/**
- * @swagger
- * /papers:
- *   get:
- *     summary: List papers with pagination and optional filters
- *     tags: [Papers]
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *         description: Page number (default 1)
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *         description: Items per page (default 10)
- *       - in: query
- *         name: sortBy
- *         schema:
- *           type: string
- *           enum: [id, name, publishedDate, submissionDate]
- *       - in: query
- *         name: sortOrder
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *       - in: query
- *         name: name
- *         schema:
- *           type: string
- *       - in: query
- *         name: journalId
- *         schema:
- *           type: integer
- *       - in: query
- *         name: issueId
- *         schema:
- *           type: integer
- *       - in: query
- *         name: publishedAfter
- *         schema:
- *           type: string
- *           format: date
- *       - in: query
- *         name: publishedBefore
- *         schema:
- *           type: string
- *           format: date
- *     responses:
- *       200:
- *         description: Paginated list of papers
- *       500:
- *         description: Server error
- */
-// router.get("/researchers/:researcherId", authenticateJWT, PaperController.getPaperByResearcher); // DEPRECATED
 
 router.get('/', authenticateJWT, PaperController.listWithPagination);
 

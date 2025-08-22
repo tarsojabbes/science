@@ -113,7 +113,7 @@ const reviewController = new ReviewController();
  *                   type: string
  *
  */
-// Request a review for a paper
+
 router.post('/request', authenticateJWT, reviewController.requestReview.bind(reviewController));
 
 /**
@@ -141,7 +141,7 @@ router.post('/request', authenticateJWT, reviewController.requestReview.bind(rev
  *                 error:
  *                   type: string
  */
-// Get reviews by reviewer (MUST come before /:id route)
+
 router.get('/my-reviews', authenticateJWT, reviewController.getReviewsByReviewer.bind(reviewController));
 
 /**
@@ -169,7 +169,7 @@ router.get('/my-reviews', authenticateJWT, reviewController.getReviewsByReviewer
  *                 error:
  *                   type: string
  */
-// Get pending reviews for reviewer (MUST come before /:id route)
+
 router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(reviewController));
 
 /**
@@ -204,7 +204,7 @@ router.get('/pending', authenticateJWT, reviewController.getPendingReviews.bind(
  *                 error:
  *                   type: string
  */
-// Get reviews by paper (MUST come before /:id route)
+
 router.get('/paper/:paperId', authenticateJWT, reviewController.getReviewsByPaper.bind(reviewController));
 
 /**
@@ -246,7 +246,7 @@ router.get('/paper/:paperId', authenticateJWT, reviewController.getReviewsByPape
  *                 error:
  *                   type: string
  */
-// Get review by ID
+
 router.get('/:id', authenticateJWT, reviewController.getReviewById.bind(reviewController));
 
 /**
@@ -307,7 +307,7 @@ router.get('/:id', authenticateJWT, reviewController.getReviewById.bind(reviewCo
  *                 error:
  *                   type: string
  */
-// Submit review result
+
 router.post('/:reviewId/submit', authenticateJWT, reviewController.submitReviewResult.bind(reviewController));
 
 /**
@@ -361,7 +361,7 @@ router.post('/:reviewId/submit', authenticateJWT, reviewController.submitReviewR
  *                 error:
  *                   type: string
  */
-// Update review status (for editors)
+
 router.put('/:id/status', authenticateJWT, reviewController.updateReviewStatus.bind(reviewController));
 
 /**
@@ -400,6 +400,6 @@ router.put('/:id/status', authenticateJWT, reviewController.updateReviewStatus.b
  *                 error:
  *                   type: string
  */
-// Note: Delete functionality removed as it's not needed for the peer-review process
+
 
 export default router;

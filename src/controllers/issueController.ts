@@ -33,7 +33,6 @@ const parsePaginationOptions = (query: PaginationQueryIssue) => {
 const parseFilters = (query: PaginationQueryIssue): IssueFilters => {
   const filters: IssueFilters = {};
 
-
   if (query.journalId) {
     filters.journalId = parseInt(query.journalId, 10);
   }
@@ -56,7 +55,7 @@ export const IssueController = {
   async create(req: Request, res: Response) {
     try {
       const { journalId } = req.body;
-      const userId = (req as any).user?.id; // Assuming user ID is available from auth middleware
+      const userId = (req as any).user?.id;
 
       if (!journalId) {
         res.status(400).json({ error: 'Journal ID is required' });
@@ -68,7 +67,6 @@ export const IssueController = {
         return;
       }
 
-      // Check if user is an editor of the journal
       const isEditor = await journalEditorService.isUserEditorOfJournal(userId, journalId);
       if (!isEditor) {
         res.status(403).json({ error: 'Only editors can create issues for this journal' });
@@ -107,7 +105,7 @@ export const IssueController = {
   async update(req: Request, res: Response) {
     try {
       const { journalId } = req.body;
-      const userId = (req as any).user?.id; // Assuming user ID is available from auth middleware
+      const userId = (req as any).user?.id;
 
       if (!journalId) {
         res.status(400).json({ error: 'Journal ID is required' });
@@ -119,7 +117,6 @@ export const IssueController = {
         return;
       }
 
-      // Check if user is an editor of the journal
       const isEditor = await journalEditorService.isUserEditorOfJournal(userId, journalId);
       if (!isEditor) {
         res.status(403).json({ error: 'Only editors can create issues for this journal' });

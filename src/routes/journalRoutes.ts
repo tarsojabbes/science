@@ -154,27 +154,6 @@ const router = Router();
  */
 router.post('/', authenticateJWT, JournalController.create);
 
-/**
- * @swagger
- * /journals:
- *   get:
- *     tags:
- *       - Journals
- *     summary: Get all journals
- *     description: Retrieves a list of all journals with their associated issues and papers.
- *     responses:
- *       200:
- *         description: List of journals with their issues
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Journal'
- *       500:
- *         description: Server error
- */
-// router.get('/', authenticateJWT, JournalController.getAll); // DEPRECATED
 
 /**
  * @swagger

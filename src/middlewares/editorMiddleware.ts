@@ -44,7 +44,7 @@ export const optionalEditorPermission = async (req: Request, res: Response, next
 
     next();
   } catch (error: any) {
-    // Continue without editor permission if there's an error
+
     (req as any).isEditor = false;
     next();
   }

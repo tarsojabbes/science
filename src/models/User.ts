@@ -11,8 +11,8 @@ export class User extends Model {
   public orcid!: string;
   public roles!: string[];
 
-  public editorJournals?: Journal[]; // Journals where the user is an Editor
-  public reviewerJournals?: Journal[]; // Journals where the user is a Reviewer
+  public editorJournals?: Journal[];
+  public reviewerJournals?: Journal[];
   
   public static associations: {
     editorJournals: Association<User, Journal>;

@@ -14,7 +14,7 @@ export class JournalReviewerService {
   }
 
   async addReviewerToJournal(journalId: number, userId: number, expertise: string[] = []): Promise<void> {
-    // Verify that both journal and user exist
+
     const journal = await this.journalRepository.getJournalById(journalId);
     if (!journal) {
       throw new Error('Journal not found');
@@ -25,7 +25,7 @@ export class JournalReviewerService {
       throw new Error('User not found');
     }
 
-    // Check if user is already a reviewer of this journal
+
     const isAlreadyReviewer = await this.journalReviewerRepository.isUserReviewerOfJournal(userId, journalId);
     if (isAlreadyReviewer) {
       throw new Error('User is already a reviewer of this journal');

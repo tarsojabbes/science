@@ -30,7 +30,7 @@ const journalEditorController = new JournalEditorController();
  *       400:
  *         description: Bad request
  */
-// Add editor to journal
+
 router.post('/journals/editors', authenticateJWT, journalEditorController.addEditorToJournal.bind(journalEditorController));
 
 /**
@@ -57,7 +57,7 @@ router.post('/journals/editors', authenticateJWT, journalEditorController.addEdi
  *       400:
  *         description: Bad request
  */
-// Remove editor from journal
+
 router.delete('/journals/:journalId/editors/:userId', authenticateJWT, journalEditorController.removeEditorFromJournal.bind(journalEditorController));
 
 /**
@@ -77,7 +77,7 @@ router.delete('/journals/:journalId/editors/:userId', authenticateJWT, journalEd
  *       200:
  *         description: List of editors
  */
-// Get all editors of a journal
+
 router.get('/journals/:journalId/editors', authenticateJWT, journalEditorController.getJournalEditors.bind(journalEditorController));
 
 /**
@@ -97,7 +97,7 @@ router.get('/journals/:journalId/editors', authenticateJWT, journalEditorControl
  *       200:
  *         description: List of journals
  */
-// Get all journals where a user is an editor
+
 router.get('/users/:userId/journals', authenticateJWT, journalEditorController.getUserJournals.bind(journalEditorController));
 
 /**
@@ -122,7 +122,7 @@ router.get('/users/:userId/journals', authenticateJWT, journalEditorController.g
  *       200:
  *         description: Permission status
  */
-// Check if user is editor of journal
+
 router.get('/journals/:journalId/editors/:userId/permission', authenticateJWT, journalEditorController.checkEditorPermission.bind(journalEditorController));
 
 export default router; 

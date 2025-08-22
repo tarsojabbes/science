@@ -49,12 +49,12 @@ describe('IssueService (teste de integração)', () => {
       issueId: { type: DataType.INTEGER, allowNull: true },
       status: { type: DataType.STRING, allowNull: false, defaultValue: 'submitted' }
     }, { sequelize, modelName: 'Paper' });
-    // Associações
+
     Paper.belongsTo(Journal, { foreignKey: 'journalId', as: 'journal' });
     Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
     Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
     Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
-    // Associação N:N entre User e Paper
+
     User.belongsToMany(Paper, {
       through: 'PaperResearchers',
       foreignKey: 'userId',
@@ -69,7 +69,7 @@ describe('IssueService (teste de integração)', () => {
     });
     await sequelize.sync({ force: true });
     issueService = new IssueService();
-    // Criação de dados base
+
     editor = await User.create({
       name: 'Editor',
       email: 'editor@example.com',
