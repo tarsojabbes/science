@@ -137,13 +137,13 @@ export class ReviewController {
         return;
       }
 
-      const review = await this.reviewService.updateReviewStatus(Number(id), status, editorNotes);
+      const review = await this.reviewService.updateReviewStatus(Number(id), status);
       res.status(200).json({
         message: 'Review status updated successfully',
         review: {
-          id: review.id,
-          status: review.status,
-          editorNotes: review.editorNotes
+          id: review?.id,
+          status: review?.status,
+          editorNotes: review?.editorNotes
         }
       });
     } catch (error: any) {
