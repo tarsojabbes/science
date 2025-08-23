@@ -18,7 +18,9 @@ describe('PaperService (teste de integração)', () => {
   let author2: User;
 
   const validJournalData = { name: 'Journal Test', issn: '1234-5678' };
+
   const validIssueData = { number: 1, volume: 1, publishedDate: new Date(), journalId: 1 };
+
   const validUserData = {
     name: 'Jane Doe',
     email: 'jane@example.com',
@@ -27,6 +29,7 @@ describe('PaperService (teste de integração)', () => {
     orcid: '0000-0000-0000-0002',
     roles: ['AUTHOR']
   };
+
   const validUserData2 = {
     name: 'John Doe',
     email: 'john@example.com',
@@ -35,6 +38,7 @@ describe('PaperService (teste de integração)', () => {
     orcid: '0000-0000-0000-0003',
     roles: ['AUTHOR']
   };
+
   const validPaperData = {
     name: 'Artigo Teste',
     url: 'http://example.com',
@@ -49,6 +53,7 @@ describe('PaperService (teste de integração)', () => {
       storage: ':memory:',
       logging: false
     });
+
     User.init({
       name: { type: DataType.STRING, allowNull: false },
       email: { type: DataType.STRING, allowNull: false, unique: true },
@@ -57,16 +62,19 @@ describe('PaperService (teste de integração)', () => {
       orcid: { type: DataType.STRING, unique: true },
         roles: { type: DataType.JSON }
     }, { sequelize, modelName: 'User' });
+
     Journal.init({
       name: { type: DataType.STRING, allowNull: false },
         issn: { type: DataType.STRING, allowNull: false, unique: true }
     }, { sequelize, modelName: 'Journal' });
+
     Issue.init({
       number: { type: DataType.INTEGER, allowNull: false },
       volume: { type: DataType.INTEGER, allowNull: false },
       publishedDate: { type: DataType.DATE, allowNull: false },
       journalId: { type: DataType.INTEGER, allowNull: false }
     }, { sequelize, modelName: 'Issue' });
+
     Paper.init({
       name: { type: DataType.STRING, allowNull: false },
       publishedDate: { type: DataType.DATE, allowNull: true },
@@ -83,27 +91,40 @@ describe('PaperService (teste de integração)', () => {
         otherKey: 'paperId',
         as: 'papers'
     });
+
     Paper.belongsToMany(User, {
         through: 'PaperResearchers',
         foreignKey: 'paperId',
         otherKey: 'userId',
         as: 'researchers'
     });
+
     Paper.belongsTo(Journal, { foreignKey: 'journalId', as: 'journal' });
+
     Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
+
     Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
+
     Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
+
     Journal.hasMany(Issue, { foreignKey: "journalId", as: "issues" });
+
     Issue.belongsTo(Journal, { foreignKey: "journalId", as: "journal" });
 
     await sequelize.sync({ force: true });
 
     userRepository = new UserRepository();
+
     paperRepository = new PaperRepository();
+
     paperService = new PaperService();
+
     journal = await Journal.create(validJournalData);
+
     issue = await Issue.create({ ...validIssueData, journalId: journal.id });
+
     author = await User.create(validUserData);
+
     author2 = await User.create(validUserData2);
   });
 
@@ -122,9 +143,11 @@ describe('PaperService (teste de integração)', () => {
       expect(result).toBeInstanceOf(Paper);
       expect(result!.name).toBe(validPaperData.name);
     });
+
     it('Caso 2: Submissão de artigo com dados inválidos', async () => {
       await expect(paperService.createPaper({ name: '', journalId: journal.id, issueId: issue.id, researcherIds: [author.id] })).rejects.toThrow();
     });
+
     it('Caso 3: Submissão de artigo sem IDs do(s) autor(es)', async () => {
       await expect(paperService.createPaper({ ...validPaperData, researcherIds: [], journalId: journal.id, issueId: issue.id })).rejects.toThrow();
     });
@@ -136,10 +159,12 @@ describe('PaperService (teste de integração)', () => {
       const result = await paperService.createPaper({ ...validPaperData, researcherIds: [author.id], journalId: journal.id, issueId: issue.id });
       expect(result!.submissionDate).toBeDefined();
     });
+
     it('Caso 2: Atribuição do status “submitted” quando artigo é submetido', async () => {
       const result = await paperService.createPaper({ ...validPaperData, researcherIds: [author.id], journalId: journal.id, issueId: issue.id });
       expect(result!.status).toBe('submitted');
     });
+    
     it('Caso 3: Atribuição do status “under_review” quando um autor solicita a revisão do artigo', async () => {
       const paper = await paperService.createPaper({ ...validPaperData, researcherIds: [author.id], journalId: journal.id, issueId: issue.id });
       const updated = await paperService.updatePaper(paper!.id, {status: 'under_review', researcherIds: [author.id] });

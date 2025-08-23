@@ -22,6 +22,7 @@ describe('IssueService (teste de integração)', () => {
       storage: ':memory:',
       logging: false
     });
+
     User.init({
       name: { type: DataType.STRING, allowNull: false },
       email: { type: DataType.STRING, allowNull: false, unique: true },
@@ -30,16 +31,19 @@ describe('IssueService (teste de integração)', () => {
       orcid: { type: DataType.STRING, unique: true },
       roles: { type: DataType.JSON }
     }, { sequelize, modelName: 'User' });
+
     Journal.init({
       name: { type: DataType.STRING, allowNull: false },
       issn: { type: DataType.STRING, allowNull: false, unique: true }
     }, { sequelize, modelName: 'Journal' });
+
     Issue.init({
       number: { type: DataType.INTEGER, allowNull: false },
       volume: { type: DataType.INTEGER, allowNull: false },
       publishedDate: { type: DataType.DATE, allowNull: true },
       journalId: { type: DataType.INTEGER, allowNull: false }
     }, { sequelize, modelName: 'Issue' });
+
     Paper.init({
       name: { type: DataType.STRING, allowNull: false },
       publishedDate: { type: DataType.DATE, allowNull: true },
@@ -51,8 +55,11 @@ describe('IssueService (teste de integração)', () => {
     }, { sequelize, modelName: 'Paper' });
 
     Paper.belongsTo(Journal, { foreignKey: 'journalId', as: 'journal' });
+
     Journal.hasMany(Paper, { foreignKey: 'journalId', as: 'papers' });
+
     Paper.belongsTo(Issue, { foreignKey: 'issueId', as: 'issue' });
+
     Issue.hasMany(Paper, { foreignKey: 'issueId', as: 'papers' });
 
     User.belongsToMany(Paper, {
@@ -61,13 +68,16 @@ describe('IssueService (teste de integração)', () => {
       otherKey: 'paperId',
       as: 'papers'
     });
+
     Paper.belongsToMany(User, {
       through: 'PaperResearchers',
       foreignKey: 'paperId',
       otherKey: 'userId',
       as: 'researchers'
     });
+
     await sequelize.sync({ force: true });
+
     issueService = new IssueService();
 
     editor = await User.create({
@@ -78,26 +88,32 @@ describe('IssueService (teste de integração)', () => {
       orcid: '0000-0000-0000-0009',
       roles: ['EDITOR']
     });
+
     journal = await Journal.create({ name: 'Journal Test', issn: '1234-5678' });
+
     otherJournal = await Journal.create({ name: 'Other Journal', issn: '9999-8888' });
+
     approvedPaper = await Paper.create({
       name: 'Artigo Aprovado',
       url: 'http://example.com/a',
       journalId: journal.id,
       status: 'approved'
     });
+
     notApprovedPaper = await Paper.create({
       name: 'Artigo Não Aprovado',
       url: 'http://example.com/b',
       journalId: journal.id,
       status: 'submitted'
     });
+
     paperFromOtherJournal = await Paper.create({
       name: 'Artigo Outra Revista',
       url: 'http://example.com/c',
       journalId: otherJournal.id,
       status: 'approved'
     });
+    
     issue = await Issue.create({
       number: 1,
       volume: 1,
@@ -128,6 +144,7 @@ describe('IssueService (teste de integração)', () => {
       expect(result).toBeInstanceOf(Issue);
       expect(result?.journalId).toBe(journal.id);
     });
+
     it('Caso 2: Editor cria uma edição de revista com artigos que ainda não foram aprovados', async () => {
       const data = {
         number: 3,
@@ -137,6 +154,7 @@ describe('IssueService (teste de integração)', () => {
       };
       await expect(issueService.createIssue(data)).rejects.toThrow('Paper must be approved to be included in an issue');
     });
+
     it('Caso 3: Editor cria uma edição de revista com artigos que foram submetidos em outra revista', async () => {
       const data = {
         number: 4,
@@ -146,6 +164,7 @@ describe('IssueService (teste de integração)', () => {
       };
       await expect(issueService.createIssue(data)).rejects.toThrow('Paper can only be published in the journal to which it was submitted');
     });
+
     it('Caso 4: Editor cria uma edição de revista com artigos inexistente', async () => {
       const data = {
         number: 5,
@@ -169,6 +188,7 @@ describe('IssueService (teste de integração)', () => {
       if (!issue) throw new Error('Falha ao criar edição');
       createdIssue = issue;
     });
+
     it('Caso 1: Editor atualiza uma edição de revista com dados válidos', async () => {
       const data = {
         number: 11,
@@ -180,6 +200,7 @@ describe('IssueService (teste de integração)', () => {
       expect(result).toBeInstanceOf(Issue);
       expect(result?.number).toBe(11);
     });
+
     it('Caso 2: Editor atualiza uma edição de revista com artigos que não foram aprovados', async () => {
       const data = {
         number: 12,
@@ -189,6 +210,7 @@ describe('IssueService (teste de integração)', () => {
       };
       await expect(issueService.updateIssue(createdIssue.id, data)).rejects.toThrow('Paper must be approved to be included in an issue');
     });
+
     it('Caso 3: Editor atualiza uma edição de revista com artigos que foram submetidos em outra revista', async () => {
       const data = {
         number: 13,
@@ -198,6 +220,7 @@ describe('IssueService (teste de integração)', () => {
       };
       await expect(issueService.updateIssue(createdIssue.id, data)).rejects.toThrow('Paper can only be published in the journal to which it was submitted');
     });
+
     it('Caso 4: Editor atualiza uma edição de revista com artigos inexistentes', async () => {
       const data = {
         number: 14,
@@ -221,12 +244,14 @@ describe('IssueService (teste de integração)', () => {
       if (!issue) throw new Error('Falha ao criar edição');
       createdIssue = issue;
     });
+
     it('Caso 1: Editor exclui edição da revista com dados válidos', async () => {
       const result = await issueService.deleteIssue(createdIssue.id);
       expect(result).toBe(true);
       const found = await Issue.findByPk(createdIssue.id);
       expect(found).toBeNull();
     });
+    
     it('Caso 2: Editor exclui edição de revista com ID inexistente', async () => {
       await expect(issueService.deleteIssue(9999)).rejects.toThrow('Issue does not exist');
     });
